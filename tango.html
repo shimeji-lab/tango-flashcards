@@ -41,7 +41,11 @@
   .stat-lines{font-size:14px;color:var(--muted);line-height:1.75;}
   .stat-lines b{color:var(--ink);font-weight:600;}
   .dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle;}
-  .flabel{font-size:12px;color:var(--muted);letter-spacing:.08em;font-weight:600;margin:2px 0 6px;}
+  .flabel-row{display:flex;align-items:center;justify-content:space-between;margin:2px 0 6px;}
+  .flabel{font-size:12px;color:var(--muted);letter-spacing:.08em;font-weight:600;}
+  .speedseg{display:flex;gap:4px;}
+  .speedseg button{width:27px;height:23px;border-radius:6px;background:var(--desk-2);font-size:12px;display:flex;align-items:center;justify-content:center;opacity:.5;}
+  .speedseg button.sel{opacity:1;background:var(--gold);}
   .levelbar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:9px;scrollbar-width:none;}
   .levelbar::-webkit-scrollbar{display:none;}
   .lvchip{flex:none;padding:8px 14px;border-radius:20px;background:var(--desk-2);color:var(--muted);font-size:14px;font-weight:600;white-space:nowrap;}
@@ -159,7 +163,14 @@
         <div><span class="dot" style="background:#3a4a42"></span><b id="stNew">0</b> 語 未学習</div>
       </div>
     </div>
-    <div class="flabel">レベル（英検）</div>
+    <div class="flabel-row">
+      <div class="flabel">レベル（英検）</div>
+      <div class="speedseg" id="speedSeg">
+        <button data-rate="0" title="発音: ゆっくり">🐢</button>
+        <button data-rate="1" title="発音: ふつう">🚶</button>
+        <button data-rate="2" title="発音: はやい">🐇</button>
+      </div>
+    </div>
     <div class="levelbar" id="levelbar"></div>
     <div class="seg" id="scopeSeg">
       <button data-scope="all" class="sel">すべて</button>
@@ -194,6 +205,7 @@
     <div class="q-stage" id="qStage">
       <div class="q-card">
         <div class="badges"><span class="tag lv" id="qLv">2級</span><span class="tag" id="qTag">単語</span></div>
+        <button class="say" id="qSay" aria-label="発音を聞く">🔊</button>
         <div class="q-word" id="qWord">—</div>
         <div class="q-prompt">意味はどれ？</div>
       </div>
@@ -1169,7 +1181,7 @@ const LEVELS=[['all','すべて'],['4','4級'],['3','3級'],['p2','準2級'],['2
 const LVLABEL={'4':'4級','3':'3級','p2':'準2級','2':'2級','p1':'準1級','1':'1級'};
 DATA.forEach((d,i)=>d.id='w'+i);
 /* アプリのバージョン。小さな修正でも必ず上げる。index.htmlの ?v= も一緒に上げてスマホのキャッシュを更新する */
-const VERSION='v1.2.0';
+const VERSION='v1.3.0';
 
 /* storage */
 const store=(()=>{let ok=true;try{const k='__t';localStorage.setItem(k,'1');localStorage.removeItem(k);}catch(e){ok=false;}const mem={};return{get(k,def){try{const v=ok?localStorage.getItem(k):mem[k];return v==null?def:JSON.parse(v);}catch(e){return def;}},set(k,v){try{const s=JSON.stringify(v);if(ok)localStorage.setItem(k,s);else mem[k]=s;}catch(e){}}};})();
@@ -1210,8 +1222,14 @@ document.body.addEventListener('click',e=>{const g=e.target.closest('[data-go]')
 /* 発音（ブラウザの音声合成。外部サイト不要・著作権フリー） */
 const TTS='speechSynthesis' in window;
 if(!TTS)document.body.classList.add('no-tts');
-function speak(text){if(!TTS||!text)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u);}catch(e){}}
+const RATES=[0.62,0.78,0.9];
+let speedIdx=store.get('speedIdx',2);
+function speak(text){if(!TTS||!text)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=RATES[speedIdx];speechSynthesis.speak(u);}catch(e){}}
+function applySpeedUI(){$$('#speedSeg button').forEach(b=>b.classList.toggle('sel',+b.dataset.rate===speedIdx));}
+$('#speedSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;speedIdx=+b.dataset.rate;store.set('speedIdx',speedIdx);applySpeedUI();speak('hello');});
+applySpeedUI();
 $('#fcSay').addEventListener('click',e=>{e.stopPropagation();if(fcQ[fcI])speak(fcQ[fcI].en);});
+$('#qSay').addEventListener('click',e=>{e.stopPropagation();if(qQ[qI])speak(qQ[qI].en);});
 
 /* flashcard */
 let fcQ=[],fcI=0,fcRevealed=false,fcRight=0;
