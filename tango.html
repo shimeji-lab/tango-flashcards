@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#15342E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>暗記シート単語帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#15342E;--desk-2:#0F2721;--paper:#FBF6EC;--ink:#20281F;--muted:#6B6257;
+    --line:#E4DCCB;--aka:#E0384A;--gold:#EBC24A;--grow:#4E9E7A;
+    --shadow:0 10px 30px -12px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{background:var(--desk);color:var(--paper);font-family:"Outfit","Hiragino Kaku Gothic ProN","Hiragino Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;display:flex;justify-content:center;}
+  .app{width:100%;max-width:460px;min-height:100dvh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 14px);position:relative;}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.02em;}
+  .brand .chip{width:26px;height:20px;border-radius:4px;background:var(--aka);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25);}
+  .streak{font-size:14px;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:5px;}
+  .screen{flex:1;display:none;flex-direction:column;animation:rise .28s ease;}
+  .screen.on{display:flex;}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h1{font-family:"Newsreader",serif;font-weight:500;font-size:25px;margin:2px 0 2px;letter-spacing:.01em;}
+  .sub{color:#B9C7BF;font-size:13px;margin:0 0 14px;line-height:1.5;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+  .ring-wrap{display:flex;align-items:center;gap:18px;background:var(--desk-2);border-radius:18px;padding:16px;margin-bottom:14px;}
+  .ring{position:relative;width:88px;height:88px;flex:none;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring .pct b{font-size:22px;font-family:"Newsreader",serif;font-weight:600;}
+  .ring .pct span{font-size:9px;color:#9fb1a8;letter-spacing:.08em;}
+  .stat-lines{font-size:13px;color:#c7d3cc;line-height:1.8;}
+  .stat-lines b{color:var(--paper);font-weight:600;}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle;}
+  .flabel{font-size:11px;color:#8ba296;letter-spacing:.08em;font-weight:600;margin:2px 0 7px;}
+  .levelbar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none;}
+  .levelbar::-webkit-scrollbar{display:none;}
+  .lvchip{flex:none;padding:8px 13px;border-radius:20px;background:var(--desk-2);color:#9fb1a8;font-size:13px;font-weight:600;white-space:nowrap;}
+  .lvchip .n{font-size:10px;opacity:.7;margin-left:3px;}
+  .lvchip.sel{background:var(--gold);color:#402f00;}
+  .seg{display:flex;background:var(--desk-2);border-radius:12px;padding:4px;gap:4px;margin-bottom:14px;}
+  .seg button{flex:1;padding:9px 0;border-radius:9px;background:transparent;color:#9fb1a8;font-size:14px;font-weight:600;}
+  .seg button.sel{background:var(--paper);color:var(--ink);}
+  .start-grid{display:grid;gap:11px;margin-top:auto;}
+  .big-btn{padding:16px 18px;border-radius:16px;text-align:left;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
+  .big-btn .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none;}
+  .big-btn .tx{display:flex;flex-direction:column;}
+  .big-btn .tx b{font-size:16px;}
+  .big-btn .tx small{font-size:12px;opacity:.75;font-weight:400;}
+  .big-btn.card{background:var(--paper);color:var(--ink);}
+  .big-btn.card .ic{background:var(--aka);color:#fff;}
+  .big-btn.quiz{background:var(--gold);color:#402f00;}
+  .big-btn.quiz .ic{background:#402f00;color:var(--gold);}
+  .big-btn.list{background:transparent;color:var(--paper);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.18);}
+  .big-btn.list .ic{background:rgba(255,255,255,.1);}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;}
+  .back{background:none;color:var(--paper);font-size:15px;font-weight:600;padding:6px 2px;opacity:.85;}
+  .progress-track{flex:1;height:7px;border-radius:5px;background:var(--desk-2);overflow:hidden;}
+  .progress-fill{height:100%;width:0;background:var(--gold);transition:width .3s ease;}
+  .count{font-size:13px;color:#9fb1a8;font-variant-numeric:tabular-nums;flex:none;}
+  .fc-stage{flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .word-card{background:var(--paper);color:var(--ink);border-radius:22px;padding:30px 24px;box-shadow:var(--shadow);position:relative;overflow:hidden;min-height:300px;display:flex;flex-direction:column;}
+  .badges{display:flex;gap:7px;align-self:flex-start;}
+  .tag{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);background:#efe7d6;padding:4px 9px;border-radius:6px;}
+  .tag.lv{background:var(--aka);color:#fff;}
+  .card .pos{color:var(--muted);font-size:13px;margin-top:auto;}
+  .headword{font-family:"Newsreader",serif;font-weight:500;font-size:38px;line-height:1.15;margin:18px 0 6px;word-break:break-word;}
+  .headword.idiom{font-size:29px;}
+  .meaning-zone{position:relative;margin:14px 0 20px;min-height:64px;display:flex;align-items:center;}
+  .meaning{font-size:20px;font-weight:600;line-height:1.5;color:var(--ink);}
+  .mrow{display:flex;align-items:baseline;gap:8px;font-size:20px;font-weight:600;line-height:1.4;color:var(--ink);}
+  .mrow+.mrow{margin-top:4px;}
+  .posb{font-size:11px;font-weight:700;color:var(--muted);background:#efe7d6;padding:2px 7px;border-radius:5px;flex:none;}
+  .sheet{position:absolute;inset:-6px -8px;border-radius:0;background:linear-gradient(180deg,#e94b5b,#d5303f);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25), inset 0 8px 20px rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;letter-spacing:.04em;transition:opacity .32s ease, transform .32s ease;cursor:pointer;}
+  .sheet::after{content:"タップで意味を出す";}
+  .meaning-zone.revealed .sheet{opacity:0;transform:translateX(18px);pointer-events:none;}
+  .grade{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  .grade button{padding:16px 0;border-radius:14px;font-size:15px;font-weight:700;}
+  .grade .again{background:rgba(224,56,74,.12);color:var(--aka);box-shadow:inset 0 0 0 1.5px rgba(224,56,74,.35);}
+  .grade .got{background:var(--grow);color:#fff;}
+  .grade.hidden{visibility:hidden;}
+  .hint{text-align:center;color:#9fb1a8;font-size:12.5px;margin-top:14px;height:16px;}
+  .q-stage{flex:1;display:flex;flex-direction:column;}
+  .q-card{background:var(--paper);color:var(--ink);border-radius:20px;padding:26px 22px;box-shadow:var(--shadow);text-align:center;margin-bottom:16px;position:relative;}
+  .q-card .badges{position:absolute;top:14px;left:14px;}
+  .q-word{font-family:"Newsreader",serif;font-weight:500;font-size:33px;margin:20px 0 2px;word-break:break-word;}
+  .q-word.idiom{font-size:25px;}
+  .q-prompt{color:var(--muted);font-size:13px;}
+  .options{display:grid;gap:10px;}
+  .opt{padding:15px 18px;border-radius:14px;background:var(--desk-2);color:var(--paper);font-size:16px;font-weight:500;text-align:left;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);transition:transform .1s ease;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .opt:active{transform:scale(.99);}
+  .opt::after{content:'';font-size:18px;font-weight:700;line-height:1;}
+  .opt.correct{background:var(--grow);color:#fff;box-shadow:none;}
+  .opt.correct::after{content:'○';}
+  .opt.wrong{background:rgba(224,56,74,.18);color:#ffd2d7;box-shadow:inset 0 0 0 1.5px var(--aka);}
+  .opt.wrong::after{content:'✕';color:var(--aka);}
+  .opt:disabled{cursor:default;}
+  .list-tools{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;}
+  .toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#c7d3cc;}
+  .switch{width:44px;height:26px;border-radius:20px;background:var(--desk-2);position:relative;transition:background .2s;flex:none;}
+  .switch.on{background:var(--aka);}
+  .switch i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;}
+  .switch.on i{left:21px;}
+  .rows{overflow-y:auto;flex:1;border-radius:16px;background:var(--desk-2);padding:6px;}
+  .row{display:flex;align-items:center;gap:10px;padding:11px 10px;border-radius:10px;}
+  .row+.row{border-top:1px solid rgba(255,255,255,.05);}
+  .row .en{font-family:"Newsreader",serif;font-size:16px;font-weight:500;flex:none;min-width:32%;}
+  .row .ja{font-size:13.5px;color:#d7e0da;flex:1;transition:color .2s, background .2s;border-radius:5px;padding:2px 6px;}
+  .row .ja .alt{opacity:.68;font-size:12px;margin-left:4px;}
+  .rows.hide .row .ja{color:transparent;background:var(--aka);}
+  .row .lvb{font-size:9px;color:#402f00;background:var(--gold);border-radius:4px;padding:2px 5px;flex:none;font-weight:700;}
+  .done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;}
+  .done .mark{font-size:54px;}
+  .done h2{font-family:"Newsreader",serif;font-weight:600;font-size:30px;margin:6px 0 2px;}
+  .done p{color:#c7d3cc;font-size:14px;margin:0 0 22px;line-height:1.6;}
+  .done .again-btn{background:var(--paper);color:var(--ink);padding:15px 34px;border-radius:14px;font-weight:700;font-size:15px;}
+  .done .home-btn{background:transparent;color:#c7d3cc;padding:12px;font-weight:600;font-size:14px;margin-top:4px;}
+  .empty{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:#9fb1a8;font-size:14px;padding:40px;line-height:1.7;}
+  .note{font-size:11px;color:#7d8c84;text-align:center;margin-top:10px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><span class="chip"></span>暗記シート単語帳</div>
+    <div class="streak" id="streak">🔥 <span id="streakN">0</span>日</div>
+  </header>
+
+  <section class="screen on" id="home">
+    <h1>今日の暗記</h1>
+    <p class="sub">レベルを選んで、赤シートで仕分け。<br>あやふやな語ほど何度も出てきます。</p>
+    <div class="ring-wrap">
+      <div class="ring">
+        <svg width="88" height="88" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="42" fill="none" stroke="#0c2019" stroke-width="9"/>
+          <circle id="ringFill" cx="48" cy="48" r="42" fill="none" stroke="var(--gold)" stroke-width="9" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"/>
+        </svg>
+        <div class="pct"><b id="ringPct">0%</b><span>MASTERED</span></div>
+      </div>
+      <div class="stat-lines">
+        <div><span class="dot" style="background:var(--grow)"></span><b id="stMaster">0</b> 語 定着</div>
+        <div><span class="dot" style="background:var(--gold)"></span><b id="stLearn">0</b> 語 学習中</div>
+        <div><span class="dot" style="background:#3a4a42"></span><b id="stNew">0</b> 語 未学習</div>
+      </div>
+    </div>
+    <div class="flabel">レベル（英検）</div>
+    <div class="levelbar" id="levelbar"></div>
+    <div class="seg" id="scopeSeg">
+      <button data-scope="all" class="sel">すべて</button>
+      <button data-scope="word">単語</button>
+      <button data-scope="idiom">熟語</button>
+    </div>
+    <div class="start-grid">
+      <button class="big-btn card" data-go="flash"><span class="ic">🟥</span><span class="tx"><b>フラッシュカード</b><small>赤シートで隠して仕分け</small></span></button>
+      <button class="big-btn quiz" data-go="quiz"><span class="ic">✎</span><span class="tx"><b>4択クイズ</b><small>意味をすばやく選ぶ</small></span></button>
+      <button class="big-btn list" data-go="list"><span class="ic">☰</span><span class="tx"><b>単語帳を見る</b><small>一覧・赤シートで確認</small></span></button>
+    </div>
+    <p class="note" id="homeNote"></p>
+  </section>
+
+  <section class="screen" id="flash">
+    <div class="topbar"><button class="back" data-go="home">‹ 戻る</button><div class="progress-track"><div class="progress-fill" id="fcFill"></div></div><div class="count" id="fcCount">0/0</div></div>
+    <div class="fc-stage" id="fcStage">
+      <div class="word-card">
+        <div class="badges"><span class="tag lv" id="fcLv">2級</span><span class="tag" id="fcTag">単語</span></div>
+        <div class="headword" id="fcWord">—</div>
+        <div class="meaning-zone" id="fcZone"><div class="meaning" id="fcMean">—</div><div class="sheet" id="fcSheet"></div></div>
+        <div class="pos" id="fcPos"></div>
+      </div>
+      <div class="grade hidden" id="fcGrade"><button class="again" data-grade="again">あやふや</button><button class="got" data-grade="got">覚えた</button></div>
+      <div class="hint" id="fcHint">タップして意味を確認</div>
+    </div>
+  </section>
+
+  <section class="screen" id="quiz">
+    <div class="topbar"><button class="back" data-go="home">‹ 戻る</button><div class="progress-track"><div class="progress-fill" id="qFill"></div></div><div class="count" id="qCount">0/0</div></div>
+    <div class="q-stage" id="qStage">
+      <div class="q-card">
+        <div class="badges"><span class="tag lv" id="qLv">2級</span><span class="tag" id="qTag">単語</span></div>
+        <div class="q-word" id="qWord">—</div>
+        <div class="q-prompt">意味はどれ？</div>
+      </div>
+      <div class="options" id="qOpts"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="list">
+    <div class="topbar"><button class="back" data-go="home">‹ 戻る</button><div class="count" id="listCount"></div></div>
+    <div class="levelbar" id="listLevelbar"></div>
+    <div class="list-tools"><div class="seg" style="margin:0;flex:1" id="listSeg"><button data-scope="all" class="sel">すべて</button><button data-scope="word">単語</button><button data-scope="idiom">熟語</button></div></div>
+    <div class="list-tools"><div class="toggle">赤シートで隠す<div class="switch on" id="listSwitch"><i></i></div></div><div class="count" id="listSub"></div></div>
+    <div class="rows hide" id="rows"></div>
+  </section>
+
+  <section class="screen" id="done">
+    <div class="done"><div class="mark" id="doneMark">🎯</div><h2 id="doneTitle">おつかれさま</h2><p id="doneMsg"></p><button class="again-btn" id="doneAgain">もう一度</button><button class="home-btn" data-go="home">ホームへ</button></div>
+  </section>
+</div>
+<script>
+const DATA=[{t:'word',lv:'4',en:'airport',pos:'名',ja:'空港'},
+{t:'word',lv:'4',en:'almost',pos:'副',ja:'ほとんど'},
+{t:'word',lv:'4',en:'angry',pos:'形',ja:'怒った'},
+{t:'word',lv:'4',en:'answer',pos:'動',ja:'答える'},
+{t:'word',lv:'4',en:'arrive',pos:'動',ja:'到着する'},
+{t:'word',lv:'4',en:'beautiful',pos:'形',ja:'美しい'},
+{t:'word',lv:'4',en:'borrow',pos:'動',ja:'借りる'},
+{t:'word',lv:'4',en:'bridge',pos:'名',ja:'橋'},
+{t:'word',lv:'4',en:'bring',pos:'動',ja:'持ってくる'},
+{t:'word',lv:'4',en:'busy',pos:'形',ja:'忙しい'},
+{t:'word',lv:'4',en:'careful',pos:'形',ja:'注意深い'},
+{t:'word',lv:'4',en:'catch',pos:'動',ja:'捕まえる'},
+{t:'word',lv:'4',en:'cheap',pos:'形',ja:'安い'},
+{t:'word',lv:'4',en:'choose',pos:'動',ja:'選ぶ'},
+{t:'word',lv:'4',en:'clean',pos:'形',ja:'きれいな'},
+{t:'word',lv:'4',en:'clear',pos:'形',ja:'晴れた、明確な'},
+{t:'word',lv:'4',en:'climb',pos:'動',ja:'登る'},
+{t:'word',lv:'4',en:'collect',pos:'動',ja:'集める'},
+{t:'word',lv:'4',en:'corner',pos:'名',ja:'角、隅'},
+{t:'word',lv:'4',en:'cross',pos:'動',ja:'渡る'},
+{t:'word',lv:'4',en:'dangerous',pos:'形',ja:'危険な'},
+{t:'word',lv:'4',en:'decide',pos:'動',ja:'決める'},
+{t:'word',lv:'4',en:'delicious',pos:'形',ja:'おいしい'},
+{t:'word',lv:'4',en:'different',pos:'形',ja:'異なる'},
+{t:'word',lv:'4',en:'dream',pos:'名',ja:'夢'},
+{t:'word',lv:'4',en:'early',pos:'副',ja:'早く'},
+{t:'word',lv:'4',en:'enjoy',pos:'動',ja:'楽しむ'},
+{t:'word',lv:'4',en:'enough',pos:'形',ja:'十分な'},
+{t:'word',lv:'4',en:'exciting',pos:'形',ja:'わくわくする'},
+{t:'word',lv:'4',en:'expensive',pos:'形',ja:'高価な'},
+{t:'word',lv:'4',en:'fall',pos:'動',ja:'落ちる、転ぶ',alt:{pos:'名',ja:'秋'}},
+{t:'word',lv:'4',en:'famous',pos:'形',ja:'有名な'},
+{t:'word',lv:'4',en:'favorite',pos:'形',ja:'お気に入りの'},
+{t:'word',lv:'4',en:'field',pos:'名',ja:'野原、分野'},
+{t:'word',lv:'4',en:'finish',pos:'動',ja:'終える'},
+{t:'word',lv:'4',en:'forget',pos:'動',ja:'忘れる'},
+{t:'word',lv:'4',en:'free',pos:'形',ja:'自由な、無料の'},
+{t:'word',lv:'4',en:'fresh',pos:'形',ja:'新鮮な'},
+{t:'word',lv:'4',en:'future',pos:'名',ja:'未来'},
+{t:'word',lv:'4',en:'garden',pos:'名',ja:'庭'},
+{t:'word',lv:'4',en:'gift',pos:'名',ja:'贈り物'},
+{t:'word',lv:'4',en:'glad',pos:'形',ja:'うれしい'},
+{t:'word',lv:'4',en:'ground',pos:'名',ja:'地面'},
+{t:'word',lv:'4',en:'hard',pos:'形',ja:'難しい、固い'},
+{t:'word',lv:'4',en:'heavy',pos:'形',ja:'重い'},
+{t:'word',lv:'4',en:'hobby',pos:'名',ja:'趣味'},
+{t:'word',lv:'4',en:'hold',pos:'動',ja:'持つ、開催する'},
+{t:'word',lv:'4',en:'hope',pos:'動',ja:'望む',alt:{pos:'名',ja:'希望'}},
+{t:'word',lv:'4',en:'hungry',pos:'形',ja:'空腹の'},
+{t:'word',lv:'4',en:'hurry',pos:'動',ja:'急ぐ'},
+{t:'word',lv:'4',en:'important',pos:'形',ja:'重要な'},
+{t:'word',lv:'4',en:'interesting',pos:'形',ja:'おもしろい'},
+{t:'word',lv:'4',en:'invite',pos:'動',ja:'招待する'},
+{t:'word',lv:'4',en:'join',pos:'動',ja:'参加する'},
+{t:'word',lv:'4',en:'kind',pos:'形',ja:'親切な'},
+{t:'word',lv:'4',en:'later',pos:'副',ja:'あとで'},
+{t:'word',lv:'4',en:'leave',pos:'動',ja:'去る、置いていく'},
+{t:'word',lv:'4',en:'lucky',pos:'形',ja:'幸運な'},
+{t:'word',lv:'4',en:'meaning',pos:'名',ja:'意味'},
+{t:'word',lv:'4',en:'meeting',pos:'名',ja:'会議'},
+{t:'word',lv:'4',en:'nature',pos:'名',ja:'自然'},
+{t:'word',lv:'4',en:'nervous',pos:'形',ja:'緊張した'},
+{t:'word',lv:'4',en:'noise',pos:'名',ja:'騒音'},
+{t:'word',lv:'4',en:'popular',pos:'形',ja:'人気のある'},
+{t:'word',lv:'4',en:'practice',pos:'動',ja:'練習する',alt:{pos:'名',ja:'練習'}},
+{t:'word',lv:'4',en:'present',pos:'名',ja:'贈り物、現在',alt:{pos:'動',ja:'贈呈する'}},
+{t:'word',lv:'4',en:'quiet',pos:'形',ja:'静かな'},
+{t:'word',lv:'4',en:'ready',pos:'形',ja:'準備ができた'},
+{t:'word',lv:'4',en:'remember',pos:'動',ja:'覚えている'},
+{t:'word',lv:'4',en:'return',pos:'動',ja:'戻る、返す'},
+{t:'word',lv:'4',en:'sad',pos:'形',ja:'悲しい'},
+{t:'word',lv:'4',en:'save',pos:'動',ja:'救う、蓄える'},
+{t:'word',lv:'4',en:'scared',pos:'形',ja:'おびえた'},
+{t:'word',lv:'4',en:'share',pos:'動',ja:'分け合う'},
+{t:'word',lv:'4',en:'sick',pos:'形',ja:'病気の'},
+{t:'word',lv:'4',en:'simple',pos:'形',ja:'簡単な'},
+{t:'word',lv:'4',en:'special',pos:'形',ja:'特別な'},
+{t:'word',lv:'4',en:'spend',pos:'動',ja:'費やす'},
+{t:'word',lv:'4',en:'straight',pos:'副',ja:'まっすぐに'},
+{t:'word',lv:'4',en:'strong',pos:'形',ja:'強い'},
+{t:'word',lv:'4',en:'terrible',pos:'形',ja:'ひどい'},
+{t:'word',lv:'4',en:'tired',pos:'形',ja:'疲れた'},
+{t:'word',lv:'4',en:'travel',pos:'動',ja:'旅行する'},
+{t:'word',lv:'4',en:'useful',pos:'形',ja:'役に立つ'},
+{t:'word',lv:'4',en:'visit',pos:'動',ja:'訪れる'},
+{t:'word',lv:'4',en:'wait',pos:'動',ja:'待つ'},
+{t:'word',lv:'4',en:'wonderful',pos:'形',ja:'すばらしい'},
+{t:'word',lv:'4',en:'worry',pos:'動',ja:'心配する'},
+{t:'idiom',lv:'4',en:'get up',pos:'熟',ja:'起きる'},
+{t:'idiom',lv:'4',en:'go to bed',pos:'熟',ja:'寝る'},
+{t:'idiom',lv:'4',en:'look at',pos:'熟',ja:'〜を見る'},
+{t:'idiom',lv:'4',en:'listen to',pos:'熟',ja:'〜を聞く'},
+{t:'idiom',lv:'4',en:'wait for',pos:'熟',ja:'〜を待つ'},
+{t:'idiom',lv:'4',en:'look for',pos:'熟',ja:'〜を探す'},
+{t:'idiom',lv:'4',en:'get to',pos:'熟',ja:'〜に着く'},
+{t:'idiom',lv:'4',en:'a lot of',pos:'熟',ja:'たくさんの'},
+{t:'idiom',lv:'4',en:'take care of',pos:'熟',ja:'世話をする'},
+{t:'idiom',lv:'4',en:'be good at',pos:'熟',ja:'〜が得意だ'},
+{t:'idiom',lv:'4',en:'be famous for',pos:'熟',ja:'〜で有名だ'},
+{t:'idiom',lv:'4',en:'would like to',pos:'熟',ja:'〜したい'},
+{t:'idiom',lv:'4',en:'be afraid of',pos:'熟',ja:'〜を恐れる'},
+{t:'idiom',lv:'4',en:'in front of',pos:'熟',ja:'〜の前に'},
+{t:'word',lv:'3',en:'advice',pos:'名',ja:'助言'},
+{t:'word',lv:'3',en:'agree',pos:'動',ja:'同意する'},
+{t:'word',lv:'3',en:'already',pos:'副',ja:'すでに'},
+{t:'word',lv:'3',en:'amazing',pos:'形',ja:'驚くべき'},
+{t:'word',lv:'3',en:'appear',pos:'動',ja:'現れる、〜に見える'},
+{t:'word',lv:'3',en:'bright',pos:'形',ja:'明るい、賢い'},
+{t:'word',lv:'3',en:'build',pos:'動',ja:'建てる'},
+{t:'word',lv:'3',en:'burn',pos:'動',ja:'燃える'},
+{t:'word',lv:'3',en:'business',pos:'名',ja:'事業、商売'},
+{t:'word',lv:'3',en:'careless',pos:'形',ja:'不注意な'},
+{t:'word',lv:'3',en:'central',pos:'形',ja:'中心の'},
+{t:'word',lv:'3',en:'century',pos:'名',ja:'世紀'},
+{t:'word',lv:'3',en:'chance',pos:'名',ja:'機会'},
+{t:'word',lv:'3',en:'check',pos:'動',ja:'確認する',alt:{pos:'名',ja:'点検、確認'}},
+{t:'word',lv:'3',en:'common',pos:'形',ja:'共通の、ありふれた'},
+{t:'word',lv:'3',en:'compare',pos:'動',ja:'比較する'},
+{t:'word',lv:'3',en:'continue',pos:'動',ja:'続ける'},
+{t:'word',lv:'3',en:'crowd',pos:'名',ja:'群衆'},
+{t:'word',lv:'3',en:'culture',pos:'名',ja:'文化'},
+{t:'word',lv:'3',en:'customer',pos:'名',ja:'客'},
+{t:'word',lv:'3',en:'dark',pos:'形',ja:'暗い'},
+{t:'word',lv:'3',en:'dead',pos:'形',ja:'死んだ'},
+{t:'word',lv:'3',en:'deep',pos:'形',ja:'深い'},
+{t:'word',lv:'3',en:'describe',pos:'動',ja:'描写する'},
+{t:'word',lv:'3',en:'die',pos:'動',ja:'死ぬ'},
+{t:'word',lv:'3',en:'directly',pos:'副',ja:'直接に'},
+{t:'word',lv:'3',en:'distance',pos:'名',ja:'距離'},
+{t:'word',lv:'3',en:'dry',pos:'形',ja:'乾いた'},
+{t:'word',lv:'3',en:'empty',pos:'形',ja:'空の'},
+{t:'word',lv:'3',en:'enter',pos:'動',ja:'入る'},
+{t:'word',lv:'3',en:'environment',pos:'名',ja:'環境'},
+{t:'word',lv:'3',en:'especially',pos:'副',ja:'特に'},
+{t:'word',lv:'3',en:'exercise',pos:'名',ja:'運動、練習',alt:{pos:'動',ja:'運動する'}},
+{t:'word',lv:'3',en:'expect',pos:'動',ja:'予期する、期待する'},
+{t:'word',lv:'3',en:'experience',pos:'名',ja:'経験',alt:{pos:'動',ja:'経験する'}},
+{t:'word',lv:'3',en:'explain',pos:'動',ja:'説明する'},
+{t:'word',lv:'3',en:'fail',pos:'動',ja:'失敗する'},
+{t:'word',lv:'3',en:'fill',pos:'動',ja:'満たす'},
+{t:'word',lv:'3',en:'follow',pos:'動',ja:'従う、ついて行く'},
+{t:'word',lv:'3',en:'foreign',pos:'形',ja:'外国の'},
+{t:'word',lv:'3',en:'gather',pos:'動',ja:'集める、集まる'},
+{t:'word',lv:'3',en:'goal',pos:'名',ja:'目標'},
+{t:'word',lv:'3',en:'grow',pos:'動',ja:'成長する、育てる'},
+{t:'word',lv:'3',en:'guess',pos:'動',ja:'推測する',alt:{pos:'名',ja:'推測'}},
+{t:'word',lv:'3',en:'health',pos:'名',ja:'健康'},
+{t:'word',lv:'3',en:'hide',pos:'動',ja:'隠す'},
+{t:'word',lv:'3',en:'hurt',pos:'動',ja:'傷つける、痛む',alt:{pos:'形',ja:'傷ついた'}},
+{t:'word',lv:'3',en:'increase',pos:'動',ja:'増える',alt:{pos:'名',ja:'増加'}},
+{t:'word',lv:'3',en:'influence',pos:'名',ja:'影響',alt:{pos:'動',ja:'影響を与える'}},
+{t:'word',lv:'3',en:'introduce',pos:'動',ja:'紹介する'},
+{t:'word',lv:'3',en:'knowledge',pos:'名',ja:'知識'},
+{t:'word',lv:'3',en:'lend',pos:'動',ja:'貸す'},
+{t:'word',lv:'3',en:'machine',pos:'名',ja:'機械'},
+{t:'word',lv:'3',en:'main',pos:'形',ja:'主な'},
+{t:'word',lv:'3',en:'member',pos:'名',ja:'会員'},
+{t:'word',lv:'3',en:'modern',pos:'形',ja:'現代の'},
+{t:'word',lv:'3',en:'moment',pos:'名',ja:'瞬間'},
+{t:'word',lv:'3',en:'necessary',pos:'形',ja:'必要な'},
+{t:'word',lv:'3',en:'neighbor',pos:'名',ja:'隣人'},
+{t:'word',lv:'3',en:'notice',pos:'動',ja:'気づく'},
+{t:'word',lv:'3',en:'offer',pos:'動',ja:'申し出る、提供する',alt:{pos:'名',ja:'申し出'}},
+{t:'word',lv:'3',en:'perfect',pos:'形',ja:'完璧な'},
+{t:'word',lv:'3',en:'period',pos:'名',ja:'期間'},
+{t:'word',lv:'3',en:'plant',pos:'動',ja:'植える',alt:{pos:'名',ja:'植物'}},
+{t:'word',lv:'3',en:'prepare',pos:'動',ja:'準備する'},
+{t:'word',lv:'3',en:'prize',pos:'名',ja:'賞'},
+{t:'word',lv:'3',en:'produce',pos:'動',ja:'生産する'},
+{t:'word',lv:'3',en:'protect',pos:'動',ja:'守る'},
+{t:'word',lv:'3',en:'public',pos:'形',ja:'公共の'},
+{t:'word',lv:'3',en:'quite',pos:'副',ja:'かなり'},
+{t:'word',lv:'3',en:'raise',pos:'動',ja:'上げる、育てる'},
+{t:'word',lv:'3',en:'realize',pos:'動',ja:'気づく、実現する'},
+{t:'word',lv:'3',en:'receive',pos:'動',ja:'受け取る'},
+{t:'word',lv:'3',en:'recently',pos:'副',ja:'最近'},
+{t:'word',lv:'3',en:'reason',pos:'名',ja:'理由'},
+{t:'word',lv:'3',en:'recycle',pos:'動',ja:'再利用する'},
+{t:'word',lv:'3',en:'relax',pos:'動',ja:'くつろぐ'},
+{t:'word',lv:'3',en:'repair',pos:'動',ja:'修理する'},
+{t:'word',lv:'3',en:'report',pos:'名',ja:'報告',alt:{pos:'動',ja:'報告する'}},
+{t:'word',lv:'3',en:'rich',pos:'形',ja:'裕福な'},
+{t:'word',lv:'3',en:'safe',pos:'形',ja:'安全な'},
+{t:'word',lv:'3',en:'sell',pos:'動',ja:'売る'},
+{t:'word',lv:'3',en:'sense',pos:'名',ja:'感覚、意味'},
+{t:'word',lv:'3',en:'serious',pos:'形',ja:'真剣な、重大な'},
+{t:'word',lv:'3',en:'shape',pos:'名',ja:'形',alt:{pos:'動',ja:'形作る'}},
+{t:'word',lv:'3',en:'similar',pos:'形',ja:'似ている'},
+{t:'word',lv:'3',en:'skill',pos:'名',ja:'技能'},
+{t:'word',lv:'3',en:'society',pos:'名',ja:'社会'},
+{t:'word',lv:'3',en:'solve',pos:'動',ja:'解決する'},
+{t:'word',lv:'3',en:'sudden',pos:'形',ja:'突然の'},
+{t:'word',lv:'3',en:'thick',pos:'形',ja:'厚い、濃い'},
+{t:'word',lv:'3',en:'thin',pos:'形',ja:'薄い、細い'},
+{t:'word',lv:'3',en:'thought',pos:'名',ja:'考え'},
+{t:'word',lv:'3',en:'throw',pos:'動',ja:'投げる'},
+{t:'word',lv:'3',en:'trouble',pos:'名',ja:'困難、面倒',alt:{pos:'動',ja:'悩ます、迷惑をかける'}},
+{t:'word',lv:'3',en:'understand',pos:'動',ja:'理解する'},
+{t:'word',lv:'3',en:'usual',pos:'形',ja:'いつもの'},
+{t:'word',lv:'3',en:'village',pos:'名',ja:'村'},
+{t:'word',lv:'3',en:'weak',pos:'形',ja:'弱い'},
+{t:'word',lv:'3',en:'weight',pos:'名',ja:'重さ'},
+{t:'word',lv:'3',en:'wide',pos:'形',ja:'広い'},
+{t:'word',lv:'3',en:'wild',pos:'形',ja:'野生の'},
+{t:'word',lv:'3',en:'wise',pos:'形',ja:'賢い'},
+{t:'word',lv:'3',en:'wrong',pos:'形',ja:'間違った'},
+{t:'idiom',lv:'3',en:'look forward to',pos:'熟',ja:'楽しみに待つ'},
+{t:'idiom',lv:'3',en:'be interested in',pos:'熟',ja:'〜に興味がある'},
+{t:'idiom',lv:'3',en:'be proud of',pos:'熟',ja:'〜を誇りに思う'},
+{t:'idiom',lv:'3',en:'get along with',pos:'熟',ja:'仲良くやる'},
+{t:'idiom',lv:'3',en:'give up',pos:'熟',ja:'あきらめる'},
+{t:'idiom',lv:'3',en:'grow up',pos:'熟',ja:'成長する'},
+{t:'idiom',lv:'3',en:'find out',pos:'熟',ja:'知る、見つけ出す'},
+{t:'idiom',lv:'3',en:'care about',pos:'熟',ja:'気にかける'},
+{t:'idiom',lv:'3',en:'depend on',pos:'熟',ja:'〜に頼る、次第だ'},
+{t:'idiom',lv:'3',en:'because of',pos:'熟',ja:'〜のために'},
+{t:'idiom',lv:'3',en:'thanks to',pos:'熟',ja:'〜のおかげで'},
+{t:'idiom',lv:'3',en:'instead of',pos:'熟',ja:'〜の代わりに'},
+{t:'idiom',lv:'3',en:'as soon as',pos:'熟',ja:'〜するとすぐに'},
+{t:'idiom',lv:'3',en:'more and more',pos:'熟',ja:'ますます'},
+{t:'idiom',lv:'3',en:'both A and B',pos:'熟',ja:'AもBも両方'},
+{t:'idiom',lv:'3',en:'get on',pos:'熟',ja:'（乗り物に）乗る'},
+{t:'idiom',lv:'3',en:'get off',pos:'熟',ja:'（乗り物を）降りる'},
+{t:'idiom',lv:'3',en:'put on',pos:'熟',ja:'身につける'},
+{t:'word',lv:'p2',en:'ability',pos:'名',ja:'能力'},
+{t:'word',lv:'p2',en:'accept',pos:'動',ja:'受け入れる'},
+{t:'word',lv:'p2',en:'achieve',pos:'動',ja:'達成する'},
+{t:'word',lv:'p2',en:'active',pos:'形',ja:'活発な'},
+{t:'word',lv:'p2',en:'actually',pos:'副',ja:'実際は'},
+{t:'word',lv:'p2',en:'add',pos:'動',ja:'加える'},
+{t:'word',lv:'p2',en:'admire',pos:'動',ja:'感嘆する、尊敬する'},
+{t:'word',lv:'p2',en:'affect',pos:'動',ja:'影響する'},
+{t:'word',lv:'p2',en:'allow',pos:'動',ja:'許す'},
+{t:'word',lv:'p2',en:'amount',pos:'名',ja:'量'},
+{t:'word',lv:'p2',en:'ancient',pos:'形',ja:'古代の'},
+{t:'word',lv:'p2',en:'apply',pos:'動',ja:'応募する、適用する'},
+{t:'word',lv:'p2',en:'attend',pos:'動',ja:'出席する'},
+{t:'word',lv:'p2',en:'attract',pos:'動',ja:'引きつける'},
+{t:'word',lv:'p2',en:'audience',pos:'名',ja:'聴衆、観客'},
+{t:'word',lv:'p2',en:'available',pos:'形',ja:'入手できる、空いている'},
+{t:'word',lv:'p2',en:'average',pos:'名',ja:'平均'},
+{t:'word',lv:'p2',en:'avoid',pos:'動',ja:'避ける'},
+{t:'word',lv:'p2',en:'basic',pos:'形',ja:'基本的な'},
+{t:'word',lv:'p2',en:'behavior',pos:'名',ja:'ふるまい、行動'},
+{t:'word',lv:'p2',en:'belong',pos:'動',ja:'所属する'},
+{t:'word',lv:'p2',en:'benefit',pos:'名',ja:'利益、恩恵',alt:{pos:'動',ja:'利益を得る'}},
+{t:'word',lv:'p2',en:'cause',pos:'動',ja:'引き起こす',alt:{pos:'名',ja:'原因'}},
+{t:'word',lv:'p2',en:'certain',pos:'形',ja:'確かな、ある〜'},
+{t:'word',lv:'p2',en:'challenge',pos:'名',ja:'挑戦、難題',alt:{pos:'動',ja:'異議を唱える'}},
+{t:'word',lv:'p2',en:'charge',pos:'動',ja:'請求する、充電する',alt:{pos:'名',ja:'料金'}},
+{t:'word',lv:'p2',en:'comfortable',pos:'形',ja:'快適な'},
+{t:'word',lv:'p2',en:'communicate',pos:'動',ja:'意思を伝える'},
+{t:'word',lv:'p2',en:'community',pos:'名',ja:'地域社会'},
+{t:'word',lv:'p2',en:'company',pos:'名',ja:'会社、仲間'},
+{t:'word',lv:'p2',en:'complete',pos:'動',ja:'完成させる',alt:{pos:'形',ja:'完全な'}},
+{t:'word',lv:'p2',en:'condition',pos:'名',ja:'状態、条件'},
+{t:'word',lv:'p2',en:'connect',pos:'動',ja:'つなぐ'},
+{t:'word',lv:'p2',en:'consider',pos:'動',ja:'よく考える'},
+{t:'word',lv:'p2',en:'contain',pos:'動',ja:'含む'},
+{t:'word',lv:'p2',en:'cost',pos:'動',ja:'（費用が）かかる',alt:{pos:'名',ja:'費用'}},
+{t:'word',lv:'p2',en:'create',pos:'動',ja:'創造する'},
+{t:'word',lv:'p2',en:'damage',pos:'名',ja:'損害',alt:{pos:'動',ja:'損害を与える'}},
+{t:'word',lv:'p2',en:'dangerously',pos:'副',ja:'危険なほど'},
+{t:'word',lv:'p2',en:'develop',pos:'動',ja:'発達させる'},
+{t:'word',lv:'p2',en:'difficulty',pos:'名',ja:'困難'},
+{t:'word',lv:'p2',en:'discover',pos:'動',ja:'発見する'},
+{t:'word',lv:'p2',en:'discuss',pos:'動',ja:'話し合う'},
+{t:'word',lv:'p2',en:'effect',pos:'名',ja:'効果、影響'},
+{t:'word',lv:'p2',en:'effort',pos:'名',ja:'努力'},
+{t:'word',lv:'p2',en:'energy',pos:'名',ja:'エネルギー、活力'},
+{t:'word',lv:'p2',en:'event',pos:'名',ja:'出来事、行事'},
+{t:'word',lv:'p2',en:'example',pos:'名',ja:'例'},
+{t:'word',lv:'p2',en:'except',pos:'前',ja:'〜を除いて'},
+{t:'word',lv:'p2',en:'exchange',pos:'動',ja:'交換する',alt:{pos:'名',ja:'交換'}},
+{t:'word',lv:'p2',en:'expression',pos:'名',ja:'表現、表情'},
+{t:'word',lv:'p2',en:'factory',pos:'名',ja:'工場'},
+{t:'word',lv:'p2',en:'figure',pos:'名',ja:'数字、姿'},
+{t:'word',lv:'p2',en:'focus',pos:'動',ja:'集中する',alt:{pos:'名',ja:'焦点'}},
+{t:'word',lv:'p2',en:'force',pos:'動',ja:'強制する',alt:{pos:'名',ja:'力'}},
+{t:'word',lv:'p2',en:'form',pos:'名',ja:'形、形式',alt:{pos:'動',ja:'形成する'}},
+{t:'word',lv:'p2',en:'freedom',pos:'名',ja:'自由'},
+{t:'word',lv:'p2',en:'goods',pos:'名',ja:'商品'},
+{t:'word',lv:'p2',en:'government',pos:'名',ja:'政府'},
+{t:'word',lv:'p2',en:'grade',pos:'名',ja:'成績、学年',alt:{pos:'動',ja:'採点する'}},
+{t:'word',lv:'p2',en:'habit',pos:'名',ja:'習慣、癖'},
+{t:'word',lv:'p2',en:'hardly',pos:'副',ja:'ほとんど〜ない'},
+{t:'word',lv:'p2',en:'however',pos:'副',ja:'しかしながら'},
+{t:'word',lv:'p2',en:'huge',pos:'形',ja:'巨大な'},
+{t:'word',lv:'p2',en:'imagine',pos:'動',ja:'想像する'},
+{t:'word',lv:'p2',en:'improve',pos:'動',ja:'改善する'},
+{t:'word',lv:'p2',en:'include',pos:'動',ja:'含む'},
+{t:'word',lv:'p2',en:'industry',pos:'名',ja:'産業'},
+{t:'word',lv:'p2',en:'information',pos:'名',ja:'情報'},
+{t:'word',lv:'p2',en:'instead',pos:'副',ja:'代わりに'},
+{t:'word',lv:'p2',en:'involve',pos:'動',ja:'含む、巻き込む'},
+{t:'word',lv:'p2',en:'lack',pos:'名',ja:'不足',alt:{pos:'動',ja:'欠いている'}},
+{t:'word',lv:'p2',en:'local',pos:'形',ja:'地元の'},
+{t:'word',lv:'p2',en:'manage',pos:'動',ja:'なんとかやり遂げる、管理する'},
+{t:'word',lv:'p2',en:'material',pos:'名',ja:'材料、素材',alt:{pos:'形',ja:'物質的な'}},
+{t:'word',lv:'p2',en:'mention',pos:'動',ja:'言及する'},
+{t:'word',lv:'p2',en:'method',pos:'名',ja:'方法'},
+{t:'word',lv:'p2',en:'nowadays',pos:'副',ja:'近ごろ'},
+{t:'word',lv:'p2',en:'official',pos:'形',ja:'公式の',alt:{pos:'名',ja:'役人、公務員'}},
+{t:'word',lv:'p2',en:'opinion',pos:'名',ja:'意見'},
+{t:'word',lv:'p2',en:'opportunity',pos:'名',ja:'機会'},
+{t:'word',lv:'p2',en:'particular',pos:'形',ja:'特定の'},
+{t:'word',lv:'p2',en:'pattern',pos:'名',ja:'型、模様'},
+{t:'word',lv:'p2',en:'perhaps',pos:'副',ja:'たぶん'},
+{t:'word',lv:'p2',en:'popularity',pos:'名',ja:'人気'},
+{t:'word',lv:'p2',en:'possible',pos:'形',ja:'可能な'},
+{t:'word',lv:'p2',en:'prefer',pos:'動',ja:'〜のほうを好む'},
+{t:'word',lv:'p2',en:'prevent',pos:'動',ja:'妨げる、防ぐ'},
+{t:'word',lv:'p2',en:'probably',pos:'副',ja:'たぶん'},
+{t:'word',lv:'p2',en:'provide',pos:'動',ja:'提供する'},
+{t:'word',lv:'p2',en:'purpose',pos:'名',ja:'目的'},
+{t:'word',lv:'p2',en:'quality',pos:'名',ja:'品質'},
+{t:'word',lv:'p2',en:'reduce',pos:'動',ja:'減らす'},
+{t:'word',lv:'p2',en:'relationship',pos:'名',ja:'関係'},
+{t:'word',lv:'p2',en:'respect',pos:'動',ja:'尊敬する',alt:{pos:'名',ja:'尊敬、敬意'}},
+{t:'word',lv:'p2',en:'responsible',pos:'形',ja:'責任がある'},
+{t:'word',lv:'p2',en:'result',pos:'名',ja:'結果'},
+{t:'word',lv:'p2',en:'rule',pos:'名',ja:'規則',alt:{pos:'動',ja:'支配する'}},
+{t:'word',lv:'p2',en:'search',pos:'動',ja:'探す',alt:{pos:'名',ja:'検索、捜索'}},
+{t:'word',lv:'p2',en:'select',pos:'動',ja:'選ぶ'},
+{t:'word',lv:'p2',en:'situation',pos:'名',ja:'状況'},
+{t:'word',lv:'p2',en:'solution',pos:'名',ja:'解決策'},
+{t:'word',lv:'p2',en:'spread',pos:'動',ja:'広げる、広がる'},
+{t:'word',lv:'p2',en:'suggest',pos:'動',ja:'提案する'},
+{t:'word',lv:'p2',en:'support',pos:'動',ja:'支える、支持する',alt:{pos:'名',ja:'支援、支持'}},
+{t:'word',lv:'p2',en:'surface',pos:'名',ja:'表面'},
+{t:'word',lv:'p2',en:'surprise',pos:'動',ja:'驚かせる',alt:{pos:'名',ja:'驚き'}},
+{t:'word',lv:'p2',en:'survive',pos:'動',ja:'生き残る'},
+{t:'word',lv:'p2',en:'tool',pos:'名',ja:'道具'},
+{t:'word',lv:'p2',en:'total',pos:'名',ja:'合計',alt:{pos:'形',ja:'全体の'}},
+{t:'word',lv:'p2',en:'value',pos:'名',ja:'価値',alt:{pos:'動',ja:'評価する、大切にする'}},
+{t:'word',lv:'p2',en:'various',pos:'形',ja:'さまざまな'},
+{t:'word',lv:'p2',en:'waste',pos:'動',ja:'浪費する',alt:{pos:'名',ja:'無駄、廃棄物'}},
+{t:'word',lv:'p2',en:'wealth',pos:'名',ja:'富'},
+{t:'word',lv:'p2',en:'whole',pos:'形',ja:'全体の'},
+{t:'idiom',lv:'p2',en:'according to',pos:'熟',ja:'〜によれば'},
+{t:'idiom',lv:'p2',en:'be based on',pos:'熟',ja:'〜に基づく'},
+{t:'idiom',lv:'p2',en:'be full of',pos:'熟',ja:'〜でいっぱいだ'},
+{t:'idiom',lv:'p2',en:'care for',pos:'熟',ja:'世話をする、好む'},
+{t:'idiom',lv:'p2',en:'deal with',pos:'熟',ja:'対処する、扱う'},
+{t:'idiom',lv:'p2',en:'in order to',pos:'熟',ja:'〜するために'},
+{t:'idiom',lv:'p2',en:'no longer',pos:'熟',ja:'もはや〜ない'},
+{t:'idiom',lv:'p2',en:'as well as',pos:'熟',ja:'〜と同様に'},
+{t:'idiom',lv:'p2',en:'apart from',pos:'熟',ja:'〜は別として'},
+{t:'idiom',lv:'p2',en:'break out',pos:'熟',ja:'（戦争・火事が）起こる'},
+{t:'idiom',lv:'p2',en:'bring up',pos:'熟',ja:'育てる、話題に出す'},
+{t:'idiom',lv:'p2',en:'call for',pos:'熟',ja:'要求する'},
+{t:'idiom',lv:'p2',en:'check out',pos:'熟',ja:'調べる、チェックアウトする'},
+{t:'idiom',lv:'p2',en:'get through',pos:'熟',ja:'切り抜ける、やり通す'},
+{t:'idiom',lv:'p2',en:'hand in',pos:'熟',ja:'提出する'},
+{t:'idiom',lv:'p2',en:'hand out',pos:'熟',ja:'配る'},
+{t:'idiom',lv:'p2',en:'hang up',pos:'熟',ja:'電話を切る'},
+{t:'idiom',lv:'p2',en:'make sense',pos:'熟',ja:'意味をなす、理にかなう'},
+{t:'idiom',lv:'p2',en:'point out',pos:'熟',ja:'指摘する'},
+{t:'idiom',lv:'p2',en:'take place',pos:'熟',ja:'起こる、開催される'},
+{t:'idiom',lv:'p2',en:'turn on',pos:'熟',ja:'（電気を）つける'},
+{t:'idiom',lv:'p2',en:'turn off',pos:'熟',ja:'（電気を）消す'},
+{t:'idiom',lv:'p2',en:'work out',pos:'熟',ja:'うまくいく、運動する、解決する'},
+{t:'word',lv:'2',en:'absolute',pos:'形',ja:'絶対的な'},
+{t:'word',lv:'2',en:'abstract',pos:'形',ja:'抽象的な'},
+{t:'word',lv:'2',en:'access',pos:'名',ja:'接近、利用',alt:{pos:'動',ja:'アクセスする'}},
+{t:'word',lv:'2',en:'accurate',pos:'形',ja:'正確な'},
+{t:'word',lv:'2',en:'acquire',pos:'動',ja:'獲得する、習得する'},
+{t:'word',lv:'2',en:'adapt',pos:'動',ja:'適応する'},
+{t:'word',lv:'2',en:'adopt',pos:'動',ja:'採用する、養子にする'},
+{t:'word',lv:'2',en:'advance',pos:'動',ja:'前進する'},
+{t:'word',lv:'2',en:'aim',pos:'動',ja:'目指す',alt:{pos:'名',ja:'目的、狙い'}},
+{t:'word',lv:'2',en:'analyze',pos:'動',ja:'分析する'},
+{t:'word',lv:'2',en:'annual',pos:'形',ja:'年一回の、毎年の'},
+{t:'word',lv:'2',en:'appreciate',pos:'動',ja:'感謝する、真価を認める'},
+{t:'word',lv:'2',en:'appropriate',pos:'形',ja:'適切な'},
+{t:'word',lv:'2',en:'approve',pos:'動',ja:'承認する'},
+{t:'word',lv:'2',en:'argue',pos:'動',ja:'主張する、論争する'},
+{t:'word',lv:'2',en:'aspect',pos:'名',ja:'側面'},
+{t:'word',lv:'2',en:'assist',pos:'動',ja:'援助する'},
+{t:'word',lv:'2',en:'associate',pos:'動',ja:'関連づける'},
+{t:'word',lv:'2',en:'assume',pos:'動',ja:'思い込む、引き受ける'},
+{t:'word',lv:'2',en:'attitude',pos:'名',ja:'態度'},
+{t:'word',lv:'2',en:'authority',pos:'名',ja:'権威、当局'},
+{t:'word',lv:'2',en:'aware',pos:'形',ja:'気づいている'},
+{t:'word',lv:'2',en:'blame',pos:'動',ja:'非難する'},
+{t:'word',lv:'2',en:'brief',pos:'形',ja:'短い、簡潔な'},
+{t:'word',lv:'2',en:'capable',pos:'形',ja:'有能な、〜できる'},
+{t:'word',lv:'2',en:'capital',pos:'名',ja:'首都、資本'},
+{t:'word',lv:'2',en:'category',pos:'名',ja:'分類、部門'},
+{t:'word',lv:'2',en:'citizen',pos:'名',ja:'市民'},
+{t:'word',lv:'2',en:'claim',pos:'動',ja:'主張する、要求する',alt:{pos:'名',ja:'主張、要求'}},
+{t:'word',lv:'2',en:'colleague',pos:'名',ja:'同僚'},
+{t:'word',lv:'2',en:'commit',pos:'動',ja:'犯す、（罪などを）おかす'},
+{t:'word',lv:'2',en:'complex',pos:'形',ja:'複雑な'},
+{t:'word',lv:'2',en:'concept',pos:'名',ja:'概念'},
+{t:'word',lv:'2',en:'concern',pos:'名',ja:'懸念、関心',alt:{pos:'動',ja:'心配させる、関係する'}},
+{t:'word',lv:'2',en:'conclude',pos:'動',ja:'結論づける'},
+{t:'word',lv:'2',en:'conduct',pos:'動',ja:'行う、指揮する'},
+{t:'word',lv:'2',en:'confident',pos:'形',ja:'自信のある'},
+{t:'word',lv:'2',en:'confirm',pos:'動',ja:'確認する'},
+{t:'word',lv:'2',en:'conflict',pos:'名',ja:'対立、争い',alt:{pos:'動',ja:'対立する'}},
+{t:'word',lv:'2',en:'consequence',pos:'名',ja:'結果、影響'},
+{t:'word',lv:'2',en:'consist',pos:'動',ja:'構成される'},
+{t:'word',lv:'2',en:'constant',pos:'形',ja:'絶え間ない、一定の'},
+{t:'word',lv:'2',en:'contribute',pos:'動',ja:'貢献する、寄付する'},
+{t:'word',lv:'2',en:'convince',pos:'動',ja:'納得させる'},
+{t:'word',lv:'2',en:'crucial',pos:'形',ja:'極めて重要な'},
+{t:'word',lv:'2',en:'current',pos:'形',ja:'現在の',alt:{pos:'名',ja:'流れ、潮流'}},
+{t:'word',lv:'2',en:'declare',pos:'動',ja:'宣言する、申告する'},
+{t:'word',lv:'2',en:'define',pos:'動',ja:'定義する'},
+{t:'word',lv:'2',en:'demand',pos:'動',ja:'要求する',alt:{pos:'名',ja:'要求、需要'}},
+{t:'word',lv:'2',en:'demonstrate',pos:'動',ja:'実演する、示す'},
+{t:'word',lv:'2',en:'deny',pos:'動',ja:'否定する'},
+{t:'word',lv:'2',en:'determine',pos:'動',ja:'決定する、突き止める'},
+{t:'word',lv:'2',en:'distinct',pos:'形',ja:'明確に異なる'},
+{t:'word',lv:'2',en:'distribute',pos:'動',ja:'分配する'},
+{t:'word',lv:'2',en:'economy',pos:'名',ja:'経済'},
+{t:'word',lv:'2',en:'efficient',pos:'形',ja:'効率的な'},
+{t:'word',lv:'2',en:'emerge',pos:'動',ja:'現れる'},
+{t:'word',lv:'2',en:'emphasize',pos:'動',ja:'強調する'},
+{t:'word',lv:'2',en:'encourage',pos:'動',ja:'励ます、促す'},
+{t:'word',lv:'2',en:'ensure',pos:'動',ja:'確実にする'},
+{t:'word',lv:'2',en:'estimate',pos:'動',ja:'見積もる'},
+{t:'word',lv:'2',en:'evidence',pos:'名',ja:'証拠'},
+{t:'word',lv:'2',en:'examine',pos:'動',ja:'調べる、診察する'},
+{t:'word',lv:'2',en:'expand',pos:'動',ja:'拡大する'},
+{t:'word',lv:'2',en:'expense',pos:'名',ja:'費用'},
+{t:'word',lv:'2',en:'expert',pos:'名',ja:'専門家',alt:{pos:'形',ja:'熟練した'}},
+{t:'word',lv:'2',en:'factor',pos:'名',ja:'要因'},
+{t:'idiom',lv:'2',en:'figure out',pos:'熟',ja:'理解する'},
+{t:'word',lv:'2',en:'frequent',pos:'形',ja:'頻繁な'},
+{t:'word',lv:'2',en:'function',pos:'名',ja:'機能',alt:{pos:'動',ja:'機能する'}},
+{t:'word',lv:'2',en:'fundamental',pos:'形',ja:'基本的な、根本的な'},
+{t:'word',lv:'2',en:'generate',pos:'動',ja:'生み出す'},
+{t:'word',lv:'2',en:'guarantee',pos:'動',ja:'保証する'},
+{t:'word',lv:'2',en:'identify',pos:'動',ja:'特定する'},
+{t:'word',lv:'2',en:'ignore',pos:'動',ja:'無視する'},
+{t:'word',lv:'2',en:'impact',pos:'名',ja:'衝撃、影響',alt:{pos:'動',ja:'影響を与える'}},
+{t:'word',lv:'2',en:'impress',pos:'動',ja:'感銘を与える'},
+{t:'word',lv:'2',en:'indicate',pos:'動',ja:'示す'},
+{t:'word',lv:'2',en:'individual',pos:'名',ja:'個人'},
+{t:'word',lv:'2',en:'instance',pos:'名',ja:'例、場合'},
+{t:'word',lv:'2',en:'intend',pos:'動',ja:'意図する'},
+{t:'word',lv:'2',en:'interpret',pos:'動',ja:'解釈する、通訳する'},
+{t:'word',lv:'2',en:'investigate',pos:'動',ja:'調査する'},
+{t:'word',lv:'2',en:'issue',pos:'名',ja:'問題、発行',alt:{pos:'動',ja:'発行する'}},
+{t:'word',lv:'2',en:'maintain',pos:'動',ja:'維持する、主張する'},
+{t:'word',lv:'2',en:'majority',pos:'名',ja:'大多数'},
+{t:'word',lv:'2',en:'obtain',pos:'動',ja:'得る'},
+{t:'word',lv:'2',en:'obvious',pos:'形',ja:'明らかな'},
+{t:'word',lv:'2',en:'occur',pos:'動',ja:'起こる'},
+{t:'word',lv:'2',en:'operate',pos:'動',ja:'操作する、手術する'},
+{t:'word',lv:'2',en:'organize',pos:'動',ja:'組織する、整理する'},
+{t:'word',lv:'2',en:'origin',pos:'名',ja:'起源'},
+{t:'word',lv:'2',en:'participate',pos:'動',ja:'参加する'},
+{t:'word',lv:'2',en:'perform',pos:'動',ja:'行う、演じる'},
+{t:'word',lv:'2',en:'permanent',pos:'形',ja:'永久の'},
+{t:'word',lv:'2',en:'policy',pos:'名',ja:'方針、政策'},
+{t:'word',lv:'2',en:'possess',pos:'動',ja:'所有する'},
+{t:'word',lv:'2',en:'potential',pos:'名',ja:'潜在能力',alt:{pos:'形',ja:'潜在的な'}},
+{t:'word',lv:'2',en:'predict',pos:'動',ja:'予測する'},
+{t:'word',lv:'2',en:'previous',pos:'形',ja:'以前の'},
+{t:'word',lv:'2',en:'principle',pos:'名',ja:'原理、信条'},
+{t:'word',lv:'2',en:'process',pos:'名',ja:'過程',alt:{pos:'動',ja:'処理する'}},
+{t:'word',lv:'2',en:'propose',pos:'動',ja:'提案する'},
+{t:'word',lv:'2',en:'prove',pos:'動',ja:'証明する'},
+{t:'word',lv:'2',en:'react',pos:'動',ja:'反応する'},
+{t:'word',lv:'2',en:'recognize',pos:'動',ja:'認識する、認める'},
+{t:'word',lv:'2',en:'recommend',pos:'動',ja:'推薦する'},
+{t:'word',lv:'2',en:'reflect',pos:'動',ja:'反映する、熟考する'},
+{t:'word',lv:'2',en:'regard',pos:'動',ja:'みなす'},
+{t:'word',lv:'2',en:'region',pos:'名',ja:'地域'},
+{t:'word',lv:'2',en:'regular',pos:'形',ja:'規則的な、定期の'},
+{t:'word',lv:'2',en:'reject',pos:'動',ja:'拒絶する'},
+{t:'word',lv:'2',en:'relate',pos:'動',ja:'関連づける'},
+{t:'word',lv:'2',en:'release',pos:'動',ja:'解放する、発表する'},
+{t:'word',lv:'2',en:'remain',pos:'動',ja:'とどまる、依然〜のままだ'},
+{t:'word',lv:'2',en:'remove',pos:'動',ja:'取り除く'},
+{t:'word',lv:'2',en:'replace',pos:'動',ja:'取り替える'},
+{t:'word',lv:'2',en:'represent',pos:'動',ja:'代表する、表す'},
+{t:'word',lv:'2',en:'require',pos:'動',ja:'必要とする'},
+{t:'word',lv:'2',en:'resource',pos:'名',ja:'資源'},
+{t:'word',lv:'2',en:'respond',pos:'動',ja:'応答する'},
+{t:'word',lv:'2',en:'reveal',pos:'動',ja:'明らかにする'},
+{t:'word',lv:'2',en:'role',pos:'名',ja:'役割'},
+{t:'word',lv:'2',en:'satisfy',pos:'動',ja:'満足させる'},
+{t:'word',lv:'2',en:'seek',pos:'動',ja:'探し求める'},
+{t:'word',lv:'2',en:'separate',pos:'動',ja:'分ける'},
+{t:'word',lv:'2',en:'significant',pos:'形',ja:'重要な、著しい'},
+{t:'word',lv:'2',en:'source',pos:'名',ja:'源、出典'},
+{t:'word',lv:'2',en:'specific',pos:'形',ja:'具体的な、特定の'},
+{t:'word',lv:'2',en:'structure',pos:'名',ja:'構造',alt:{pos:'動',ja:'構成する'}},
+{t:'word',lv:'2',en:'succeed',pos:'動',ja:'成功する、後を継ぐ'},
+{t:'word',lv:'2',en:'sufficient',pos:'形',ja:'十分な'},
+{t:'word',lv:'2',en:'suitable',pos:'形',ja:'適した'},
+{t:'word',lv:'2',en:'target',pos:'名',ja:'標的、目標',alt:{pos:'動',ja:'対象にする、狙う'}},
+{t:'word',lv:'2',en:'tend',pos:'動',ja:'〜する傾向がある'},
+{t:'word',lv:'2',en:'theory',pos:'名',ja:'理論'},
+{t:'word',lv:'2',en:'tradition',pos:'名',ja:'伝統'},
+{t:'word',lv:'2',en:'transfer',pos:'動',ja:'移す、移動する',alt:{pos:'名',ja:'移動、転校'}},
+{t:'word',lv:'2',en:'trend',pos:'名',ja:'傾向、流行'},
+{t:'word',lv:'2',en:'typical',pos:'形',ja:'典型的な'},
+{t:'word',lv:'2',en:'unique',pos:'形',ja:'独特の'},
+{t:'word',lv:'2',en:'urban',pos:'形',ja:'都市の'},
+{t:'word',lv:'2',en:'vary',pos:'動',ja:'異なる、変化する'},
+{t:'idiom',lv:'2',en:'be likely to',pos:'熟',ja:'〜しそうだ'},
+{t:'idiom',lv:'2',en:'be supposed to',pos:'熟',ja:'〜することになっている'},
+{t:'idiom',lv:'2',en:'be willing to',pos:'熟',ja:'進んで〜する'},
+{t:'idiom',lv:'2',en:'come about',pos:'熟',ja:'起こる、生じる'},
+{t:'idiom',lv:'2',en:'get over',pos:'熟',ja:'克服する'},
+{t:'idiom',lv:'2',en:'go through',pos:'熟',ja:'経験する、通り抜ける'},
+{t:'idiom',lv:'2',en:'in terms of',pos:'熟',ja:'〜の観点から'},
+{t:'idiom',lv:'2',en:'look up',pos:'熟',ja:'（辞書などで）調べる'},
+{t:'idiom',lv:'2',en:'make out',pos:'熟',ja:'理解する、見分ける'},
+{t:'idiom',lv:'2',en:'pass away',pos:'熟',ja:'亡くなる'},
+{t:'idiom',lv:'2',en:'put together',pos:'熟',ja:'組み立てる、まとめる'},
+{t:'idiom',lv:'2',en:'result in',pos:'熟',ja:'〜という結果になる'},
+{t:'idiom',lv:'2',en:'result from',pos:'熟',ja:'〜に起因する'},
+{t:'idiom',lv:'2',en:'set up',pos:'熟',ja:'設立する、準備する'},
+{t:'idiom',lv:'2',en:'take over',pos:'熟',ja:'引き継ぐ'},
+{t:'idiom',lv:'2',en:'take part in',pos:'熟',ja:'参加する'},
+{t:'idiom',lv:'2',en:'be responsible for',pos:'熟',ja:'〜に責任がある'},
+{t:'idiom',lv:'2',en:'in spite of',pos:'熟',ja:'〜にもかかわらず'},
+{t:'idiom',lv:'2',en:'on behalf of',pos:'熟',ja:'〜を代表して'},
+{t:'idiom',lv:'2',en:'regardless of',pos:'熟',ja:'〜に関係なく'},
+{t:'word',lv:'p1',en:'abundant',pos:'形',ja:'豊富な、ありあまる'},
+{t:'word',lv:'p1',en:'adverse',pos:'形',ja:'不利な、逆の'},
+{t:'word',lv:'p1',en:'aesthetic',pos:'形',ja:'美的な'},
+{t:'word',lv:'p1',en:'ambiguous',pos:'形',ja:'あいまいな'},
+{t:'word',lv:'p1',en:'articulate',pos:'動',ja:'はっきり述べる'},
+{t:'word',lv:'p1',en:'attain',pos:'動',ja:'達成する、到達する'},
+{t:'word',lv:'p1',en:'coherent',pos:'形',ja:'首尾一貫した'},
+{t:'word',lv:'p1',en:'coincide',pos:'動',ja:'同時に起こる、一致する'},
+{t:'word',lv:'p1',en:'compile',pos:'動',ja:'編集する、まとめる'},
+{t:'word',lv:'p1',en:'comprehensive',pos:'形',ja:'包括的な'},
+{t:'word',lv:'p1',en:'conceive',pos:'動',ja:'思いつく、心に抱く'},
+{t:'word',lv:'p1',en:'constitute',pos:'動',ja:'構成する'},
+{t:'word',lv:'p1',en:'contradict',pos:'動',ja:'矛盾する、反論する'},
+{t:'word',lv:'p1',en:'cumulative',pos:'形',ja:'累積的な'},
+{t:'word',lv:'p1',en:'deduce',pos:'動',ja:'推論する'},
+{t:'word',lv:'p1',en:'deliberate',pos:'形',ja:'意図的な、慎重な'},
+{t:'word',lv:'p1',en:'deteriorate',pos:'動',ja:'悪化する'},
+{t:'word',lv:'p1',en:'diminish',pos:'動',ja:'減少する、弱まる'},
+{t:'word',lv:'p1',en:'discrete',pos:'形',ja:'別々の、離散的な'},
+{t:'word',lv:'p1',en:'distort',pos:'動',ja:'ゆがめる'},
+{t:'word',lv:'p1',en:'diverse',pos:'形',ja:'多様な'},
+{t:'word',lv:'p1',en:'empirical',pos:'形',ja:'経験的な、実証的な'},
+{t:'word',lv:'p1',en:'endeavor',pos:'名',ja:'努力、試み'},
+{t:'word',lv:'p1',en:'enhance',pos:'動',ja:'高める、強化する'},
+{t:'word',lv:'p1',en:'entail',pos:'動',ja:'（必然的に）伴う'},
+{t:'word',lv:'p1',en:'explicit',pos:'形',ja:'明確な、明示的な'},
+{t:'word',lv:'p1',en:'feasible',pos:'形',ja:'実行可能な'},
+{t:'word',lv:'p1',en:'fluctuate',pos:'動',ja:'変動する'},
+{t:'word',lv:'p1',en:'hypothesis',pos:'名',ja:'仮説'},
+{t:'word',lv:'p1',en:'impede',pos:'動',ja:'妨げる'},
+{t:'word',lv:'p1',en:'implicit',pos:'形',ja:'暗黙の'},
+{t:'word',lv:'p1',en:'incentive',pos:'名',ja:'動機、誘因'},
+{t:'word',lv:'p1',en:'inevitable',pos:'形',ja:'避けられない'},
+{t:'word',lv:'p1',en:'infer',pos:'動',ja:'推測する'},
+{t:'word',lv:'p1',en:'inherent',pos:'形',ja:'本来備わった、固有の'},
+{t:'word',lv:'p1',en:'integrate',pos:'動',ja:'統合する'},
+{t:'word',lv:'p1',en:'justify',pos:'動',ja:'正当化する'},
+{t:'word',lv:'p1',en:'legitimate',pos:'形',ja:'正当な、合法の'},
+{t:'word',lv:'p1',en:'magnitude',pos:'名',ja:'大きさ、規模'},
+{t:'word',lv:'p1',en:'notion',pos:'名',ja:'概念、考え'},
+{t:'word',lv:'p1',en:'paradigm',pos:'名',ja:'枠組み、パラダイム'},
+{t:'word',lv:'p1',en:'plausible',pos:'形',ja:'もっともらしい'},
+{t:'word',lv:'p1',en:'precede',pos:'動',ja:'先立つ'},
+{t:'word',lv:'p1',en:'predominant',pos:'形',ja:'支配的な'},
+{t:'word',lv:'p1',en:'presume',pos:'動',ja:'推定する、思い込む'},
+{t:'word',lv:'p1',en:'profound',pos:'形',ja:'深遠な、重大な'},
+{t:'word',lv:'p1',en:'prohibit',pos:'動',ja:'禁止する'},
+{t:'word',lv:'p1',en:'prompt',pos:'動',ja:'促す、引き起こす'},
+{t:'word',lv:'p1',en:'redundant',pos:'形',ja:'余分な、冗長な'},
+{t:'word',lv:'p1',en:'reinforce',pos:'動',ja:'強化する、補強する'},
+{t:'word',lv:'p1',en:'reluctant',pos:'形',ja:'気が進まない'},
+{t:'word',lv:'p1',en:'rigorous',pos:'形',ja:'厳密な、厳しい'},
+{t:'word',lv:'p1',en:'subsequent',pos:'形',ja:'その後の、次の'},
+{t:'word',lv:'p1',en:'substantial',pos:'形',ja:'かなりの、実質的な'},
+{t:'word',lv:'p1',en:'tentative',pos:'形',ja:'仮の、暫定的な'},
+{t:'word',lv:'p1',en:'underlying',pos:'形',ja:'根底にある'},
+{t:'word',lv:'p1',en:'vague',pos:'形',ja:'漠然とした'},
+{t:'word',lv:'p1',en:'viable',pos:'形',ja:'実行可能な、存立できる'},
+{t:'word',lv:'p1',en:'accumulate',pos:'動',ja:'蓄積する'},
+{t:'word',lv:'p1',en:'acknowledge',pos:'動',ja:'認める'},
+{t:'word',lv:'p1',en:'allocate',pos:'動',ja:'割り当てる'},
+{t:'word',lv:'p1',en:'anticipate',pos:'動',ja:'予期する'},
+{t:'word',lv:'p1',en:'apparent',pos:'形',ja:'明白な、見かけの'},
+{t:'word',lv:'p1',en:'assess',pos:'動',ja:'評価する、査定する'},
+{t:'word',lv:'p1',en:'compensate',pos:'動',ja:'補償する、埋め合わせる'},
+{t:'word',lv:'p1',en:'comply',pos:'動',ja:'従う'},
+{t:'word',lv:'p1',en:'comprise',pos:'動',ja:'構成する、〜から成る'},
+{t:'word',lv:'p1',en:'consecutive',pos:'形',ja:'連続した'},
+{t:'word',lv:'p1',en:'conserve',pos:'動',ja:'保存する、節約する'},
+{t:'word',lv:'p1',en:'contemporary',pos:'形',ja:'現代の、同時代の'},
+{t:'word',lv:'p1',en:'controversial',pos:'形',ja:'論争を呼ぶ'},
+{t:'word',lv:'p1',en:'convey',pos:'動',ja:'伝える、運ぶ'},
+{t:'word',lv:'p1',en:'cope',pos:'動',ja:'対処する'},
+{t:'word',lv:'p1',en:'correspond',pos:'動',ja:'一致する、文通する'},
+{t:'word',lv:'p1',en:'crude',pos:'形',ja:'粗雑な、天然のままの'},
+{t:'word',lv:'p1',en:'cultivate',pos:'動',ja:'耕す、育てる'},
+{t:'word',lv:'p1',en:'decline',pos:'動',ja:'衰える、断る'},
+{t:'word',lv:'p1',en:'dedicate',pos:'動',ja:'ささげる'},
+{t:'word',lv:'p1',en:'deficient',pos:'形',ja:'不足した'},
+{t:'word',lv:'p1',en:'derive',pos:'動',ja:'引き出す、由来する'},
+{t:'word',lv:'p1',en:'dominate',pos:'動',ja:'支配する'},
+{t:'word',lv:'p1',en:'elaborate',pos:'形',ja:'精巧な、手の込んだ'},
+{t:'word',lv:'p1',en:'eliminate',pos:'動',ja:'除去する'},
+{t:'word',lv:'p1',en:'evident',pos:'形',ja:'明白な'},
+{t:'word',lv:'p1',en:'evolve',pos:'動',ja:'進化する'},
+{t:'word',lv:'p1',en:'exceed',pos:'動',ja:'超える'},
+{t:'word',lv:'p1',en:'exploit',pos:'動',ja:'利用する、搾取する'},
+{t:'word',lv:'p1',en:'facilitate',pos:'動',ja:'促進する、容易にする'},
+{t:'word',lv:'p1',en:'fatigue',pos:'名',ja:'疲労'},
+{t:'word',lv:'p1',en:'flexible',pos:'形',ja:'柔軟な'},
+{t:'word',lv:'p1',en:'foster',pos:'動',ja:'育成する、促進する'},
+{t:'word',lv:'p1',en:'hostile',pos:'形',ja:'敵意のある'},
+{t:'word',lv:'p1',en:'illustrate',pos:'動',ja:'説明する、例示する'},
+{t:'word',lv:'p1',en:'immense',pos:'形',ja:'巨大な'},
+{t:'word',lv:'p1',en:'imply',pos:'動',ja:'ほのめかす'},
+{t:'word',lv:'p1',en:'impose',pos:'動',ja:'課す、押しつける'},
+{t:'word',lv:'p1',en:'inclined',pos:'形',ja:'〜する傾向がある'},
+{t:'word',lv:'p1',en:'indispensable',pos:'形',ja:'不可欠な'},
+{t:'word',lv:'p1',en:'initiate',pos:'動',ja:'始める'},
+{t:'word',lv:'p1',en:'innovative',pos:'形',ja:'革新的な'},
+{t:'word',lv:'p1',en:'integral',pos:'形',ja:'不可欠な、完全な'},
+{t:'word',lv:'p1',en:'intense',pos:'形',ja:'激しい、強烈な'},
+{t:'word',lv:'p1',en:'interfere',pos:'動',ja:'干渉する、妨げる'},
+{t:'word',lv:'p1',en:'modify',pos:'動',ja:'修正する'},
+{t:'word',lv:'p1',en:'negotiate',pos:'動',ja:'交渉する'},
+{t:'word',lv:'p1',en:'notable',pos:'形',ja:'注目すべき'},
+{t:'word',lv:'p1',en:'nourish',pos:'動',ja:'栄養を与える'},
+{t:'word',lv:'p1',en:'optimistic',pos:'形',ja:'楽観的な'},
+{t:'word',lv:'p1',en:'outcome',pos:'名',ja:'結果'},
+{t:'word',lv:'p1',en:'overcome',pos:'動',ja:'克服する'},
+{t:'word',lv:'p1',en:'overwhelm',pos:'動',ja:'圧倒する'},
+{t:'word',lv:'p1',en:'persist',pos:'動',ja:'固執する、しつこく続く'},
+{t:'word',lv:'p1',en:'perspective',pos:'名',ja:'観点、遠近法'},
+{t:'word',lv:'p1',en:'phenomenon',pos:'名',ja:'現象'},
+{t:'word',lv:'p1',en:'preliminary',pos:'形',ja:'予備の'},
+{t:'word',lv:'p1',en:'prevail',pos:'動',ja:'広まる、勝つ'},
+{t:'word',lv:'p1',en:'priority',pos:'名',ja:'優先'},
+{t:'word',lv:'p1',en:'prospect',pos:'名',ja:'見込み、展望'},
+{t:'word',lv:'p1',en:'radical',pos:'形',ja:'急進的な、根本的な'},
+{t:'word',lv:'p1',en:'reluctance',pos:'名',ja:'気の進まなさ'},
+{t:'word',lv:'p1',en:'reproduce',pos:'動',ja:'再生する、繁殖する'},
+{t:'word',lv:'p1',en:'restrict',pos:'動',ja:'制限する'},
+{t:'word',lv:'p1',en:'simultaneous',pos:'形',ja:'同時の'},
+{t:'word',lv:'p1',en:'sophisticated',pos:'形',ja:'洗練された、高度な'},
+{t:'word',lv:'p1',en:'subtle',pos:'形',ja:'微妙な、繊細な'},
+{t:'word',lv:'p1',en:'surpass',pos:'動',ja:'上回る'},
+{t:'word',lv:'p1',en:'sustain',pos:'動',ja:'維持する、支える'},
+{t:'word',lv:'p1',en:'thorough',pos:'形',ja:'徹底的な'},
+{t:'word',lv:'p1',en:'transform',pos:'動',ja:'変形させる'},
+{t:'word',lv:'p1',en:'transmit',pos:'動',ja:'伝える、送る'},
+{t:'word',lv:'p1',en:'undergo',pos:'動',ja:'経験する、受ける'},
+{t:'word',lv:'p1',en:'vast',pos:'形',ja:'広大な'},
+{t:'word',lv:'p1',en:'verify',pos:'動',ja:'検証する'},
+{t:'word',lv:'p1',en:'versatile',pos:'形',ja:'多才な、用途の広い'},
+{t:'word',lv:'p1',en:'vital',pos:'形',ja:'極めて重要な、生命の'},
+{t:'idiom',lv:'p1',en:'account for',pos:'熟',ja:'説明する；占める'},
+{t:'idiom',lv:'p1',en:'bring about',pos:'熟',ja:'引き起こす'},
+{t:'idiom',lv:'p1',en:'carry out',pos:'熟',ja:'実行する'},
+{t:'idiom',lv:'p1',en:'come across',pos:'熟',ja:'偶然出会う；印象を与える'},
+{t:'idiom',lv:'p1',en:'come up with',pos:'熟',ja:'思いつく'},
+{t:'idiom',lv:'p1',en:'cope with',pos:'熟',ja:'対処する'},
+{t:'idiom',lv:'p1',en:'cut down on',pos:'熟',ja:'減らす'},
+{t:'idiom',lv:'p1',en:'do away with',pos:'熟',ja:'廃止する'},
+{t:'idiom',lv:'p1',en:'get rid of',pos:'熟',ja:'取り除く'},
+{t:'idiom',lv:'p1',en:'give in',pos:'熟',ja:'屈する、降参する'},
+{t:'idiom',lv:'p1',en:'give rise to',pos:'熟',ja:'引き起こす'},
+{t:'idiom',lv:'p1',en:'keep up with',pos:'熟',ja:'遅れずについていく'},
+{t:'idiom',lv:'p1',en:'look down on',pos:'熟',ja:'見下す'},
+{t:'idiom',lv:'p1',en:'look into',pos:'熟',ja:'調査する'},
+{t:'idiom',lv:'p1',en:'look up to',pos:'熟',ja:'尊敬する'},
+{t:'idiom',lv:'p1',en:'make up for',pos:'熟',ja:'埋め合わせる'},
+{t:'idiom',lv:'p1',en:'put off',pos:'熟',ja:'延期する'},
+{t:'idiom',lv:'p1',en:'put up with',pos:'熟',ja:'我慢する'},
+{t:'idiom',lv:'p1',en:'rule out',pos:'熟',ja:'除外する'},
+{t:'idiom',lv:'p1',en:'run out of',pos:'熟',ja:'使い果たす'},
+{t:'idiom',lv:'p1',en:'stand for',pos:'熟',ja:'表す、象徴する'},
+{t:'idiom',lv:'p1',en:'take after',pos:'熟',ja:'（親に）似ている'},
+{t:'idiom',lv:'p1',en:'take for granted',pos:'熟',ja:'当然と思う'},
+{t:'idiom',lv:'p1',en:'turn down',pos:'熟',ja:'断る；下げる'},
+{t:'idiom',lv:'p1',en:'turn out',pos:'熟',ja:'結局〜だとわかる'},
+{t:'idiom',lv:'p1',en:'call off',pos:'熟',ja:'中止する'},
+{t:'idiom',lv:'p1',en:'break down',pos:'熟',ja:'故障する；分解する'},
+{t:'idiom',lv:'p1',en:'set aside',pos:'熟',ja:'取っておく、脇に置く'},
+{t:'idiom',lv:'p1',en:'in the long run',pos:'熟',ja:'長い目で見れば'},
+{t:'idiom',lv:'p1',en:'for the sake of',pos:'熟',ja:'〜のために'},
+{t:'word',lv:'1',en:'aberration',pos:'名',ja:'逸脱、異常'},
+{t:'word',lv:'1',en:'abstain',pos:'動',ja:'控える、棄権する'},
+{t:'word',lv:'1',en:'acclaim',pos:'動',ja:'称賛する'},
+{t:'word',lv:'1',en:'adamant',pos:'形',ja:'断固とした'},
+{t:'word',lv:'1',en:'aggregate',pos:'名',ja:'総計、集合体'},
+{t:'word',lv:'1',en:'alleviate',pos:'動',ja:'緩和する'},
+{t:'word',lv:'1',en:'aloof',pos:'形',ja:'よそよそしい'},
+{t:'word',lv:'1',en:'ambivalent',pos:'形',ja:'相反する感情を抱く'},
+{t:'word',lv:'1',en:'anomaly',pos:'名',ja:'異常、変則'},
+{t:'word',lv:'1',en:'appease',pos:'動',ja:'なだめる'},
+{t:'word',lv:'1',en:'arbitrary',pos:'形',ja:'恣意的な'},
+{t:'word',lv:'1',en:'astute',pos:'形',ja:'抜け目のない、鋭い'},
+{t:'word',lv:'1',en:'audacious',pos:'形',ja:'大胆な'},
+{t:'word',lv:'1',en:'augment',pos:'動',ja:'増やす'},
+{t:'word',lv:'1',en:'benevolent',pos:'形',ja:'慈悲深い'},
+{t:'word',lv:'1',en:'candid',pos:'形',ja:'率直な'},
+{t:'word',lv:'1',en:'coerce',pos:'動',ja:'強要する'},
+{t:'word',lv:'1',en:'cogent',pos:'形',ja:'説得力のある'},
+{t:'word',lv:'1',en:'commemorate',pos:'動',ja:'記念する'},
+{t:'word',lv:'1',en:'compelling',pos:'形',ja:'抗しがたい、説得力のある'},
+{t:'word',lv:'1',en:'complacent',pos:'形',ja:'自己満足の'},
+{t:'word',lv:'1',en:'concede',pos:'動',ja:'認める、譲歩する'},
+{t:'word',lv:'1',en:'conducive',pos:'形',ja:'助けとなる'},
+{t:'word',lv:'1',en:'conspicuous',pos:'形',ja:'目立つ'},
+{t:'word',lv:'1',en:'copious',pos:'形',ja:'おびただしい'},
+{t:'word',lv:'1',en:'cordial',pos:'形',ja:'心からの'},
+{t:'word',lv:'1',en:'culminate',pos:'動',ja:'頂点に達する'},
+{t:'word',lv:'1',en:'deference',pos:'名',ja:'敬意、服従'},
+{t:'word',lv:'1',en:'deplete',pos:'動',ja:'激減させる、枯渇させる'},
+{t:'word',lv:'1',en:'deter',pos:'動',ja:'思いとどまらせる'},
+{t:'word',lv:'1',en:'detrimental',pos:'形',ja:'有害な'},
+{t:'word',lv:'1',en:'diffident',pos:'形',ja:'自信のない、内気な'},
+{t:'word',lv:'1',en:'disparate',pos:'形',ja:'本質的に異なる'},
+{t:'word',lv:'1',en:'dispel',pos:'動',ja:'払いのける'},
+{t:'word',lv:'1',en:'disseminate',pos:'動',ja:'広める'},
+{t:'word',lv:'1',en:'ecstatic',pos:'形',ja:'有頂天の'},
+{t:'word',lv:'1',en:'elusive',pos:'形',ja:'とらえどころのない'},
+{t:'word',lv:'1',en:'eloquent',pos:'形',ja:'雄弁な'},
+{t:'word',lv:'1',en:'embellish',pos:'動',ja:'飾り立てる'},
+{t:'word',lv:'1',en:'eminent',pos:'形',ja:'著名な'},
+{t:'word',lv:'1',en:'enervate',pos:'動',ja:'気力を奪う'},
+{t:'word',lv:'1',en:'ephemeral',pos:'形',ja:'はかない、短命の'},
+{t:'word',lv:'1',en:'equivocal',pos:'形',ja:'あいまいな、どっちつかずの'},
+{t:'word',lv:'1',en:'erudite',pos:'形',ja:'博学な'},
+{t:'word',lv:'1',en:'exacerbate',pos:'動',ja:'悪化させる'},
+{t:'word',lv:'1',en:'exemplary',pos:'形',ja:'模範的な'},
+{t:'word',lv:'1',en:'exhaustive',pos:'形',ja:'徹底的な、網羅的な'},
+{t:'word',lv:'1',en:'exonerate',pos:'動',ja:'無罪にする'},
+{t:'word',lv:'1',en:'expedite',pos:'動',ja:'促進する'},
+{t:'word',lv:'1',en:'fastidious',pos:'形',ja:'気難しい、細かい'},
+{t:'word',lv:'1',en:'frugal',pos:'形',ja:'倹約的な'},
+{t:'word',lv:'1',en:'garrulous',pos:'形',ja:'おしゃべりな'},
+{t:'word',lv:'1',en:'gregarious',pos:'形',ja:'社交的な'},
+{t:'word',lv:'1',en:'hamper',pos:'動',ja:'妨げる'},
+{t:'word',lv:'1',en:'hackneyed',pos:'形',ja:'使い古された、陳腐な'},
+{t:'word',lv:'1',en:'impeccable',pos:'形',ja:'申し分のない'},
+{t:'word',lv:'1',en:'impetuous',pos:'形',ja:'衝動的な'},
+{t:'word',lv:'1',en:'incessant',pos:'形',ja:'絶え間ない'},
+{t:'word',lv:'1',en:'indict',pos:'動',ja:'起訴する'},
+{t:'word',lv:'1',en:'indolent',pos:'形',ja:'怠惰な'},
+{t:'word',lv:'1',en:'ineffable',pos:'形',ja:'言葉に表せない'},
+{t:'word',lv:'1',en:'innate',pos:'形',ja:'生まれつきの'},
+{t:'word',lv:'1',en:'insidious',pos:'形',ja:'知らぬ間に進行する、陰険な'},
+{t:'word',lv:'1',en:'intrepid',pos:'形',ja:'勇敢な'},
+{t:'word',lv:'1',en:'intricate',pos:'形',ja:'複雑に入り組んだ'},
+{t:'word',lv:'1',en:'inundate',pos:'動',ja:'殺到する、水浸しにする'},
+{t:'word',lv:'1',en:'laudable',pos:'形',ja:'称賛に値する'},
+{t:'word',lv:'1',en:'lethargic',pos:'形',ja:'無気力な'},
+{t:'word',lv:'1',en:'lucid',pos:'形',ja:'明快な、明晰な'},
+{t:'word',lv:'1',en:'magnanimous',pos:'形',ja:'度量の大きい'},
+{t:'word',lv:'1',en:'meticulous',pos:'形',ja:'細心の'},
+{t:'word',lv:'1',en:'mitigate',pos:'動',ja:'和らげる、緩和する'},
+{t:'word',lv:'1',en:'mundane',pos:'形',ja:'平凡な、世俗的な'},
+{t:'word',lv:'1',en:'nonchalant',pos:'形',ja:'無頓着な、平然とした'},
+{t:'word',lv:'1',en:'nuance',pos:'名',ja:'微妙な違い'},
+{t:'word',lv:'1',en:'obscure',pos:'形',ja:'不明瞭な、無名の'},
+{t:'word',lv:'1',en:'obsolete',pos:'形',ja:'廃れた、時代遅れの'},
+{t:'word',lv:'1',en:'ominous',pos:'形',ja:'不吉な'},
+{t:'word',lv:'1',en:'opaque',pos:'形',ja:'不透明な、不明瞭な'},
+{t:'word',lv:'1',en:'ostentatious',pos:'形',ja:'見せびらかす'},
+{t:'word',lv:'1',en:'paramount',pos:'形',ja:'最高の、最も重要な'},
+{t:'word',lv:'1',en:'perpetuate',pos:'動',ja:'永続させる'},
+{t:'word',lv:'1',en:'pertinent',pos:'形',ja:'適切な、関連した'},
+{t:'word',lv:'1',en:'placid',pos:'形',ja:'穏やかな'},
+{t:'word',lv:'1',en:'precarious',pos:'形',ja:'不安定な、危うい'},
+{t:'word',lv:'1',en:'pragmatic',pos:'形',ja:'実際的な'},
+{t:'word',lv:'1',en:'preposterous',pos:'形',ja:'ばかげた'},
+{t:'word',lv:'1',en:'pristine',pos:'形',ja:'汚れのない、原初の'},
+{t:'word',lv:'1',en:'proficient',pos:'形',ja:'熟達した'},
+{t:'word',lv:'1',en:'profuse',pos:'形',ja:'豊富な、惜しみない'},
+{t:'word',lv:'1',en:'proliferate',pos:'動',ja:'急増する'},
+{t:'word',lv:'1',en:'prudent',pos:'形',ja:'慎重な、賢明な'},
+{t:'word',lv:'1',en:'quell',pos:'動',ja:'鎮める'},
+{t:'word',lv:'1',en:'rampant',pos:'形',ja:'はびこる、横行する'},
+{t:'word',lv:'1',en:'reciprocal',pos:'形',ja:'相互の'},
+{t:'word',lv:'1',en:'refute',pos:'動',ja:'反駁する、論破する'},
+{t:'word',lv:'1',en:'relinquish',pos:'動',ja:'放棄する、手放す'},
+{t:'word',lv:'1',en:'reprimand',pos:'動',ja:'叱責する'},
+{t:'word',lv:'1',en:'resilient',pos:'形',ja:'立ち直りが早い'},
+{t:'word',lv:'1',en:'reticent',pos:'形',ja:'無口な、控えめな'},
+{t:'word',lv:'1',en:'sagacious',pos:'形',ja:'賢明な'},
+{t:'word',lv:'1',en:'scrutiny',pos:'名',ja:'綿密な調査'},
+{t:'word',lv:'1',en:'serene',pos:'形',ja:'穏やかな、静かな'},
+{t:'word',lv:'1',en:'spurious',pos:'形',ja:'偽の'},
+{t:'word',lv:'1',en:'squander',pos:'動',ja:'浪費する'},
+{t:'word',lv:'1',en:'stagnant',pos:'形',ja:'よどんだ、停滞した'},
+{t:'word',lv:'1',en:'staunch',pos:'形',ja:'忠実な、断固とした'},
+{t:'word',lv:'1',en:'stringent',pos:'形',ja:'厳しい、厳格な'},
+{t:'word',lv:'1',en:'submissive',pos:'形',ja:'従順な'},
+{t:'word',lv:'1',en:'succinct',pos:'形',ja:'簡潔な'},
+{t:'word',lv:'1',en:'superfluous',pos:'形',ja:'余分な'},
+{t:'word',lv:'1',en:'tacit',pos:'形',ja:'暗黙の'},
+{t:'word',lv:'1',en:'tangible',pos:'形',ja:'有形の、明白な'},
+{t:'word',lv:'1',en:'tenacious',pos:'形',ja:'粘り強い'},
+{t:'word',lv:'1',en:'transient',pos:'形',ja:'一時的な、はかない'},
+{t:'word',lv:'1',en:'ubiquitous',pos:'形',ja:'至る所にある'},
+{t:'word',lv:'1',en:'unprecedented',pos:'形',ja:'前例のない'},
+{t:'word',lv:'1',en:'vehement',pos:'形',ja:'激しい、熱烈な'},
+{t:'word',lv:'1',en:'venerable',pos:'形',ja:'尊敬すべき、由緒ある'},
+{t:'word',lv:'1',en:'verbose',pos:'形',ja:'冗長な、言葉数の多い'},
+{t:'word',lv:'1',en:'vigilant',pos:'形',ja:'油断のない、警戒した'},
+{t:'word',lv:'1',en:'volatile',pos:'形',ja:'不安定な、揮発性の'},
+{t:'word',lv:'1',en:'wary',pos:'形',ja:'用心深い'},
+{t:'word',lv:'1',en:'zealous',pos:'形',ja:'熱心な'},
+{t:'idiom',lv:'1',en:'at the expense of',pos:'熟',ja:'〜を犠牲にして'},
+{t:'idiom',lv:'1',en:'at odds with',pos:'熟',ja:'〜と対立して'},
+{t:'idiom',lv:'1',en:'by virtue of',pos:'熟',ja:'〜のおかげで、〜によって'},
+{t:'idiom',lv:'1',en:'come to terms with',pos:'熟',ja:'（つらい事実を）受け入れる'},
+{t:'idiom',lv:'1',en:'fall short of',pos:'熟',ja:'〜に達しない、及ばない'},
+{t:'idiom',lv:'1',en:'get the hang of',pos:'熟',ja:'こつをつかむ'},
+{t:'idiom',lv:'1',en:'in the wake of',pos:'熟',ja:'〜の直後に、〜の結果として'},
+{t:'idiom',lv:'1',en:'keep abreast of',pos:'熟',ja:'（情報に）遅れずについていく'},
+{t:'idiom',lv:'1',en:'live up to',pos:'熟',ja:'（期待に）応える'},
+{t:'idiom',lv:'1',en:'make the most of',pos:'熟',ja:'最大限に活用する'},
+{t:'idiom',lv:'1',en:'on the verge of',pos:'熟',ja:'今にも〜しようとして'},
+{t:'idiom',lv:'1',en:'pave the way for',pos:'熟',ja:'〜への道を開く'},
+{t:'idiom',lv:'1',en:'stand out',pos:'熟',ja:'目立つ'},
+{t:'idiom',lv:'1',en:'take its toll',pos:'熟',ja:'（悪い）影響を及ぼす、犠牲を出す'},
+{t:'idiom',lv:'1',en:'weigh in on',pos:'熟',ja:'（議論に）意見を述べる'},
+{t:'idiom',lv:'1',en:'bank on',pos:'熟',ja:'当てにする'},
+{t:'idiom',lv:'1',en:'brush up on',pos:'熟',ja:'（復習して）磨きをかける'},
+{t:'idiom',lv:'1',en:'call it a day',pos:'熟',ja:'切り上げる、終わりにする'},
+{t:'idiom',lv:'1',en:'get carried away',pos:'熟',ja:'調子に乗る、我を忘れる'},
+{t:'idiom',lv:'1',en:'jump to conclusions',pos:'熟',ja:'早合点する'}];
+const LEVELS=[['all','すべて'],['4','4級'],['3','3級'],['p2','準2級'],['2','2級'],['p1','準1級'],['1','1級']];
+const LVLABEL={'4':'4級','3':'3級','p2':'準2級','2':'2級','p1':'準1級','1':'1級'};
+DATA.forEach((d,i)=>d.id='w'+i);
+
+/* storage */
+const store=(()=>{let ok=true;try{const k='__t';localStorage.setItem(k,'1');localStorage.removeItem(k);}catch(e){ok=false;}const mem={};return{get(k,def){try{const v=ok?localStorage.getItem(k):mem[k];return v==null?def:JSON.parse(v);}catch(e){return def;}},set(k,v){try{const s=JSON.stringify(v);if(ok)localStorage.setItem(k,s);else mem[k]=s;}catch(e){}}};})();
+let boxes=store.get('boxes',{});DATA.forEach(d=>{if(boxes[d.id]==null)boxes[d.id]=0;});
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+let streak=store.get('streak',{n:0,last:''});
+function bumpStreak(){const t=todayStr();if(streak.last===t)return;const y=new Date(Date.now()-864e5);const ys=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();streak.n=(streak.last===ys)?streak.n+1:1;streak.last=t;store.set('streak',streak);}
+
+const $=s=>document.querySelector(s);const $$=s=>document.querySelectorAll(s);
+function show(id){$$('.screen').forEach(s=>s.classList.remove('on'));$('#'+id).classList.add('on');}
+function saveBoxes(){store.set('boxes',boxes);}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pool(scope,level){return DATA.filter(d=>(scope==='all'||d.t===scope)&&(level==='all'||d.lv===level));}
+function buildQueue(scope,level,limit){const p=pool(scope,level).slice();p.sort((a,b)=>(boxes[a.id]-boxes[b.id])||(Math.random()-.5));return shuffle(p).sort((a,b)=>boxes[a.id]-boxes[b.id]).slice(0,limit);}
+
+/* level chips */
+let scope='all',level='all';
+function renderLevelbar(el,cur,onPick){el.innerHTML='';LEVELS.forEach(([code,label])=>{const c=DATA.filter(d=>code==='all'||d.lv===code).length;const b=document.createElement('button');b.className='lvchip'+(code===cur?' sel':'');b.innerHTML=label+'<span class="n">'+c+'</span>';b.onclick=()=>onPick(code);el.appendChild(b);});}
+
+/* home */
+function renderHome(){
+  renderLevelbar($('#levelbar'),level,c=>{level=c;renderHome();});
+  const p=pool(scope,level);
+  const master=p.filter(d=>boxes[d.id]>=4).length;
+  const learn=p.filter(d=>boxes[d.id]>=1&&boxes[d.id]<4).length;
+  const neu=p.filter(d=>boxes[d.id]===0).length;
+  const pct=p.length?Math.round(master/p.length*100):0;
+  $('#stMaster').textContent=master;$('#stLearn').textContent=learn;$('#stNew').textContent=neu;
+  $('#ringPct').textContent=pct+'%';const C=264;$('#ringFill').style.strokeDashoffset=C-(C*pct/100);
+  const wc=DATA.filter(d=>d.t==='word').length,ic=DATA.filter(d=>d.t==='idiom').length;
+  $('#homeNote').textContent='全'+DATA.length+'項目（単語 '+wc+'・熟語 '+ic+'）／選択中: '+(level==='all'?'全レベル':LVLABEL[level])+' '+p.length+'項目';
+  $('#streakN').textContent=streak.n;
+}
+$('#scopeSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;scope=b.dataset.scope;$$('#scopeSeg button').forEach(x=>x.classList.toggle('sel',x===b));renderHome();});
+
+document.body.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;const dst=g.dataset.go;if(dst==='flash')startFlash();else if(dst==='quiz')startQuiz();else if(dst==='list'){listScope=scope;listLevel=level;renderList();show('list');}else if(dst==='home'){renderHome();show('home');}});
+
+/* flashcard */
+let fcQ=[],fcI=0,fcRevealed=false,fcRight=0;
+function startFlash(){fcQ=buildQueue(scope,level,20);fcI=0;fcRight=0;show('flash');if(!fcQ.length){$('#fcStage').innerHTML='<div class="empty">この条件に語がありません。<br>ホームでレベルや種別を変えてください。</div>';return;}renderFC();}
+function renderFC(){const d=fcQ[fcI];fcRevealed=false;$('#fcLv').textContent=LVLABEL[d.lv];$('#fcTag').textContent=d.t==='word'?'単語':'熟語';const w=$('#fcWord');w.textContent=d.en;w.classList.toggle('idiom',d.t==='idiom');const meanEl=$('#fcMean');if(d.alt){meanEl.innerHTML='<div class="mrow"><span class="posb">'+d.pos+'</span><span>'+d.ja+'</span></div><div class="mrow"><span class="posb">'+d.alt.pos+'</span><span>'+d.alt.ja+'</span></div>';$('#fcPos').textContent='';}else{meanEl.textContent=d.ja;$('#fcPos').textContent=d.pos==='熟'?'':'（'+d.pos+'）';}$('#fcZone').classList.remove('revealed');$('#fcGrade').classList.add('hidden');$('#fcHint').textContent='タップして意味を確認';$('#fcCount').textContent=(fcI+1)+'/'+fcQ.length;$('#fcFill').style.width=(fcI/fcQ.length*100)+'%';}
+$('#fcSheet').addEventListener('click',()=>{fcRevealed=true;$('#fcZone').classList.add('revealed');$('#fcGrade').classList.remove('hidden');$('#fcHint').textContent='思い出せた？';});
+$('#fcGrade').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!fcRevealed)return;const d=fcQ[fcI];if(b.dataset.grade==='got'){boxes[d.id]=Math.min(4,boxes[d.id]+1);fcRight++;}else{boxes[d.id]=Math.max(0,boxes[d.id]-1);}saveBoxes();fcI++;if(fcI>=fcQ.length){bumpStreak();finishFlash();}else renderFC();});
+function finishFlash(){$('#doneMark').textContent=fcRight===fcQ.length?'🎉':'📗';$('#doneTitle').textContent='カード完了';$('#doneMsg').innerHTML=fcQ.length+' 枚中 <b>'+fcRight+'</b> 枚「覚えた」<br>あやふやな語は次回また出てきます。';$('#doneAgain').onclick=()=>{renderHome();startFlash();};renderHome();show('done');}
+
+/* quiz */
+let qQ=[],qI=0,qRight=0,qLock=false;
+function startQuiz(){qQ=buildQueue(scope,level,10);qI=0;qRight=0;show('quiz');if(qQ.length<4){$('#qStage').innerHTML='<div class="empty">クイズには最低4語必要です。<br>レベルや種別を「すべて」に広げてください。</div>';return;}renderQ();}
+function renderQ(){qLock=false;const d=qQ[qI];$('#qLv').textContent=LVLABEL[d.lv];$('#qTag').textContent=d.t==='word'?'単語':'熟語';const w=$('#qWord');w.textContent=d.en;w.classList.toggle('idiom',d.t==='idiom');$('#qCount').textContent=(qI+1)+'/'+qQ.length;$('#qFill').style.width=(qI/qQ.length*100)+'%';const same=DATA.filter(x=>x.id!==d.id&&x.t===d.t);const distract=shuffle((same.length>=3?same:DATA.filter(x=>x.id!==d.id))).slice(0,3);const opts=shuffle([d,...distract]);const box=$('#qOpts');box.innerHTML='';opts.forEach(o=>{const btn=document.createElement('button');btn.className='opt';btn.textContent=o.ja;btn.onclick=()=>answer(btn,o,d);box.appendChild(btn);});}
+function answer(btn,chosen,correct){if(qLock)return;qLock=true;$$('#qOpts .opt').forEach(b=>{b.disabled=true;if(b.textContent===correct.ja)b.classList.add('correct');});if(chosen.id===correct.id){qRight++;boxes[correct.id]=Math.min(4,boxes[correct.id]+1);}else{btn.classList.add('wrong');boxes[correct.id]=Math.max(0,boxes[correct.id]-1);}saveBoxes();setTimeout(()=>{qI++;if(qI>=qQ.length){bumpStreak();finishQuiz();}else renderQ();},chosen.id===correct.id?650:1150);}
+function finishQuiz(){const rate=Math.round(qRight/qQ.length*100);$('#doneMark').textContent=rate===100?'🏆':rate>=70?'🎯':'📘';$('#doneTitle').textContent='クイズ結果';$('#doneMsg').innerHTML=qQ.length+' 問中 <b>'+qRight+'</b> 問正解（'+rate+'%）<br>間違えた語は仕分けに反映しました。';$('#doneAgain').onclick=()=>{renderHome();startQuiz();};renderHome();show('done');}
+
+/* list */
+let listScope='all',listLevel='all',listHide=true;
+function renderList(){renderLevelbar($('#listLevelbar'),listLevel,c=>{listLevel=c;renderList();});const p=pool(listScope,listLevel);const rows=$('#rows');rows.innerHTML='';p.forEach(d=>{const r=document.createElement('div');r.className='row';const st=boxes[d.id]>=4?'定着':boxes[d.id]>=1?'学習中':'未';r.innerHTML='<span class="en">'+d.en+'</span><span class="ja">'+d.ja+(d.alt?' <span class="alt">／'+d.alt.ja+'</span>':'')+'</span><span class="lvb">'+LVLABEL[d.lv]+'</span>';rows.appendChild(r);});rows.classList.toggle('hide',listHide);$('#listSub').textContent=p.length+' 項目';$('#listCount').textContent=(listLevel==='all'?'単語帳':LVLABEL[listLevel]);$$('#listSeg button').forEach(x=>x.classList.toggle('sel',x.dataset.scope===listScope));}
+$('#listSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;listScope=b.dataset.scope;renderList();});
+$('#listSwitch').addEventListener('click',()=>{listHide=!listHide;$('#listSwitch').classList.toggle('on',listHide);$('#rows').classList.toggle('hide',listHide);});
+$('#rows').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r||!listHide)return;const ja=r.querySelector('.ja');ja.style.color='var(--paper)';ja.style.background='transparent';setTimeout(()=>{if(listHide){ja.style.color='';ja.style.background='';}},1400);});
+
+renderHome();
+</script>
+</body>
+</html>
