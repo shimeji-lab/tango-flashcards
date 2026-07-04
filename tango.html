@@ -13,7 +13,7 @@
 <style>
   :root{
     --desk:#15342E;--desk-2:#0F2721;--paper:#FBF6EC;--ink:#20281F;--muted:#6B6257;
-    --line:#E4DCCB;--aka:#E0384A;--gold:#EBC24A;--grow:#4E9E7A;
+    --line:#E4DCCB;--aka:#C15E52;--gold:#EBC24A;--grow:#4E9E7A;
     --shadow:0 10px 30px -12px rgba(0,0,0,.45);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -30,6 +30,7 @@
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   h1{font-family:"Newsreader",serif;font-weight:500;font-size:25px;margin:2px 0 2px;letter-spacing:.01em;}
   .sub{color:#B9C7BF;font-size:13px;margin:0 0 14px;line-height:1.5;}
+  .disclaimer{color:#7d8c84;font-size:11.5px;margin:-8px 0 14px;line-height:1.6;}
   button{font-family:inherit;cursor:pointer;border:none;}
   .ring-wrap{display:flex;align-items:center;gap:18px;background:var(--desk-2);border-radius:18px;padding:16px;margin-bottom:14px;}
   .ring{position:relative;width:88px;height:88px;flex:none;}
@@ -79,12 +80,12 @@
   .mrow{display:flex;align-items:baseline;gap:8px;font-size:20px;font-weight:600;line-height:1.4;color:var(--ink);}
   .mrow+.mrow{margin-top:4px;}
   .posb{font-size:11px;font-weight:700;color:var(--muted);background:#efe7d6;padding:2px 7px;border-radius:5px;flex:none;}
-  .sheet{position:absolute;inset:-6px -8px;border-radius:0;background:linear-gradient(180deg,#e94b5b,#d5303f);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25), inset 0 8px 20px rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;letter-spacing:.04em;transition:opacity .32s ease, transform .32s ease;cursor:pointer;}
+  .sheet{position:absolute;inset:-6px -8px;border-radius:0;background:linear-gradient(180deg,#cf796d,#b45a4e);box-shadow:inset 0 0 0 2px rgba(255,255,255,.16), inset 0 8px 20px rgba(255,255,255,.10);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;letter-spacing:.04em;transition:opacity .32s ease, transform .32s ease;cursor:pointer;}
   .sheet::after{content:"タップで意味を出す";}
   .meaning-zone.revealed .sheet{opacity:0;transform:translateX(18px);pointer-events:none;}
   .grade{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
   .grade button{padding:16px 0;border-radius:14px;font-size:15px;font-weight:700;}
-  .grade .again{background:rgba(224,56,74,.12);color:var(--aka);box-shadow:inset 0 0 0 1.5px rgba(224,56,74,.35);}
+  .grade .again{background:rgba(193,94,82,.12);color:var(--aka);box-shadow:inset 0 0 0 1.5px rgba(193,94,82,.35);}
   .grade .got{background:var(--grow);color:#fff;}
   .grade.hidden{visibility:hidden;}
   .hint{text-align:center;color:#9fb1a8;font-size:12.5px;margin-top:14px;height:16px;}
@@ -100,7 +101,7 @@
   .opt::after{content:'';font-size:18px;font-weight:700;line-height:1;}
   .opt.correct{background:var(--grow);color:#fff;box-shadow:none;}
   .opt.correct::after{content:'○';}
-  .opt.wrong{background:rgba(224,56,74,.18);color:#ffd2d7;box-shadow:inset 0 0 0 1.5px var(--aka);}
+  .opt.wrong{background:rgba(193,94,82,.18);color:#f5d9d4;box-shadow:inset 0 0 0 1.5px var(--aka);}
   .opt.wrong::after{content:'✕';color:var(--aka);}
   .opt:disabled{cursor:default;}
   .list-tools{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;}
@@ -137,6 +138,7 @@
   <section class="screen on" id="home">
     <h1>今日の暗記</h1>
     <p class="sub">レベルを選んで、赤シートで仕分け。<br>あやふやな語ほど何度も出てきます。</p>
+    <p class="disclaimer">※これは自作の暇つぶし用アプリです。しっかり覚えたいときは、単語帳や教科書・辞書もあわせて使ってね。</p>
     <div class="ring-wrap">
       <div class="ring">
         <svg width="88" height="88" viewBox="0 0 96 96">
@@ -1160,7 +1162,7 @@ const LEVELS=[['all','すべて'],['4','4級'],['3','3級'],['p2','準2級'],['2
 const LVLABEL={'4':'4級','3':'3級','p2':'準2級','2':'2級','p1':'準1級','1':'1級'};
 DATA.forEach((d,i)=>d.id='w'+i);
 /* アプリのバージョン。小さな修正でも必ず上げる。index.htmlの ?v= も一緒に上げてスマホのキャッシュを更新する */
-const VERSION='v1.0.0';
+const VERSION='v1.0.1';
 
 /* storage */
 const store=(()=>{let ok=true;try{const k='__t';localStorage.setItem(k,'1');localStorage.removeItem(k);}catch(e){ok=false;}const mem={};return{get(k,def){try{const v=ok?localStorage.getItem(k):mem[k];return v==null?def:JSON.parse(v);}catch(e){return def;}},set(k,v){try{const s=JSON.stringify(v);if(ok)localStorage.setItem(k,s);else mem[k]=s;}catch(e){}}};})();
