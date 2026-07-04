@@ -28,34 +28,35 @@
   .screen{flex:1;display:none;flex-direction:column;animation:rise .28s ease;}
   .screen.on{display:flex;}
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  h1{font-family:"Newsreader",serif;font-weight:500;font-size:25px;margin:2px 0 2px;letter-spacing:.01em;}
-  .sub{color:var(--muted);font-size:13px;margin:0 0 14px;line-height:1.5;}
-  .disclaimer{color:#9A8D77;font-size:11.5px;margin:-8px 0 14px;line-height:1.6;}
+  h1{font-family:"Newsreader",serif;font-weight:500;font-size:28px;margin:2px 0 3px;letter-spacing:.01em;}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 7px;line-height:1.5;}
+  .disclaimer{color:#9A8D77;font-size:11.5px;margin:-2px 0 8px;line-height:1.45;}
   button{font-family:inherit;cursor:pointer;border:none;}
-  .ring-wrap{display:flex;align-items:center;gap:18px;background:var(--desk-2);border-radius:18px;padding:16px;margin-bottom:14px;}
-  .ring{position:relative;width:88px;height:88px;flex:none;}
+  .ring-wrap{display:flex;align-items:center;gap:16px;background:var(--desk-2);border-radius:18px;padding:11px 15px;margin-bottom:9px;}
+  .ring{position:relative;width:74px;height:74px;flex:none;}
   .ring svg{transform:rotate(-90deg);}
   .ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .ring .pct b{font-size:22px;font-family:"Newsreader",serif;font-weight:600;}
   .ring .pct span{font-size:9px;color:var(--muted);letter-spacing:.08em;}
-  .stat-lines{font-size:13px;color:var(--muted);line-height:1.8;}
+  .stat-lines{font-size:14px;color:var(--muted);line-height:1.75;}
   .stat-lines b{color:var(--ink);font-weight:600;}
   .dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle;}
-  .flabel{font-size:11px;color:var(--muted);letter-spacing:.08em;font-weight:600;margin:2px 0 7px;}
-  .levelbar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none;}
+  .flabel{font-size:12px;color:var(--muted);letter-spacing:.08em;font-weight:600;margin:2px 0 6px;}
+  .levelbar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:9px;scrollbar-width:none;}
   .levelbar::-webkit-scrollbar{display:none;}
-  .lvchip{flex:none;padding:8px 13px;border-radius:20px;background:var(--desk-2);color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap;}
+  .lvchip{flex:none;padding:8px 14px;border-radius:20px;background:var(--desk-2);color:var(--muted);font-size:14px;font-weight:600;white-space:nowrap;}
   .lvchip .n{font-size:10px;opacity:.7;margin-left:3px;}
   .lvchip.sel{background:var(--gold);color:#3a2b00;}
-  .seg{display:flex;background:var(--desk-2);border-radius:12px;padding:4px;gap:4px;margin-bottom:14px;}
-  .seg button{flex:1;padding:9px 0;border-radius:9px;background:transparent;color:var(--muted);font-size:14px;font-weight:600;}
+  .seg{display:flex;background:var(--desk-2);border-radius:12px;padding:4px;gap:4px;margin-bottom:11px;}
+  .seg button{flex:1;min-width:0;padding:10px 2px;border-radius:9px;background:transparent;color:var(--muted);font-size:15px;font-weight:600;white-space:nowrap;}
+  .seg button[data-scope="idiom"]{font-size:12.5px;letter-spacing:-.02em;}
   .seg button.sel{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(70,52,30,.15);}
-  .start-grid{display:grid;gap:11px;margin-top:auto;}
-  .big-btn{padding:16px 18px;border-radius:16px;text-align:left;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
+  .start-grid{display:grid;gap:9px;margin-top:auto;}
+  .big-btn{padding:12px 18px;border-radius:16px;text-align:left;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
   .big-btn .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex:none;}
   .big-btn .tx{display:flex;flex-direction:column;}
-  .big-btn .tx b{font-size:16px;}
-  .big-btn .tx small{font-size:12px;opacity:.75;font-weight:400;}
+  .big-btn .tx b{font-size:17px;}
+  .big-btn .tx small{font-size:12.5px;opacity:.78;font-weight:400;}
   .big-btn.card{background:var(--paper);color:var(--ink);}
   .big-btn.card .ic{background:var(--aka);color:#fff;}
   .big-btn.quiz{background:var(--gold);color:#3a2b00;}
@@ -125,7 +126,7 @@
   .done .again-btn{background:var(--gold);color:#3a2b00;padding:15px 34px;border-radius:14px;font-weight:700;font-size:15px;}
   .done .home-btn{background:transparent;color:var(--muted);padding:12px;font-weight:600;font-size:14px;margin-top:4px;}
   .empty{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:14px;padding:40px;line-height:1.7;}
-  .note{font-size:11px;color:#9A8D77;text-align:center;margin-top:10px;line-height:1.5;}
+  .note{font-size:11.5px;color:#9A8D77;text-align:center;margin-top:7px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -138,10 +139,10 @@
   <section class="screen on" id="home">
     <h1>今日の暗記</h1>
     <p class="sub">レベルを選んで、赤シートで仕分け。<br>あやふやな語ほど何度も出てきます。</p>
-    <p class="disclaimer">※これは自作の暇つぶし用アプリです。しっかり覚えたいときは、単語帳や教科書・辞書もあわせて使ってね。</p>
+    <p class="disclaimer">※これは自作の暇つぶし用アプリです。しっかり覚えたいときは、単語帳や教科書・辞書もあわせて使ってね。ほしい機能があったら教えてね。</p>
     <div class="ring-wrap">
       <div class="ring">
-        <svg width="88" height="88" viewBox="0 0 96 96">
+        <svg width="74" height="74" viewBox="0 0 96 96">
           <circle cx="48" cy="48" r="42" fill="none" stroke="#D3C8B2" stroke-width="9"/>
           <circle id="ringFill" cx="48" cy="48" r="42" fill="none" stroke="var(--gold)" stroke-width="9" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"/>
         </svg>
@@ -158,7 +159,7 @@
     <div class="seg" id="scopeSeg">
       <button data-scope="all" class="sel">すべて</button>
       <button data-scope="word">単語</button>
-      <button data-scope="idiom">熟語</button>
+      <button data-scope="idiom">熟語(イディオム)</button>
     </div>
     <div class="start-grid">
       <button class="big-btn card" data-go="flash"><span class="ic">🟥</span><span class="tx"><b>フラッシュカード</b><small>赤シートで隠して仕分け</small></span></button>
@@ -197,7 +198,7 @@
   <section class="screen" id="list">
     <div class="topbar"><button class="back" data-go="home">‹ 戻る</button><div class="count" id="listCount"></div></div>
     <div class="levelbar" id="listLevelbar"></div>
-    <div class="list-tools"><div class="seg" style="margin:0;flex:1" id="listSeg"><button data-scope="all" class="sel">すべて</button><button data-scope="word">単語</button><button data-scope="idiom">熟語</button></div></div>
+    <div class="list-tools"><div class="seg" style="margin:0;flex:1" id="listSeg"><button data-scope="all" class="sel">すべて</button><button data-scope="word">単語</button><button data-scope="idiom">熟語(イディオム)</button></div></div>
     <div class="list-tools"><div class="toggle">赤シートで隠す<div class="switch on" id="listSwitch"><i></i></div></div><div class="count" id="listSub"></div></div>
     <div class="rows hide" id="rows"></div>
   </section>
@@ -1162,7 +1163,7 @@ const LEVELS=[['all','すべて'],['4','4級'],['3','3級'],['p2','準2級'],['2
 const LVLABEL={'4':'4級','3':'3級','p2':'準2級','2':'2級','p1':'準1級','1':'1級'};
 DATA.forEach((d,i)=>d.id='w'+i);
 /* アプリのバージョン。小さな修正でも必ず上げる。index.htmlの ?v= も一緒に上げてスマホのキャッシュを更新する */
-const VERSION='v1.1.0';
+const VERSION='v1.1.1';
 
 /* storage */
 const store=(()=>{let ok=true;try{const k='__t';localStorage.setItem(k,'1');localStorage.removeItem(k);}catch(e){ok=false;}const mem={};return{get(k,def){try{const v=ok?localStorage.getItem(k):mem[k];return v==null?def:JSON.parse(v);}catch(e){return def;}},set(k,v){try{const s=JSON.stringify(v);if(ok)localStorage.setItem(k,s);else mem[k]=s;}catch(e){}}};})();
@@ -1179,7 +1180,7 @@ function pool(scope,level){return DATA.filter(d=>(scope==='all'||d.t===scope)&&(
 function buildQueue(scope,level,limit){const p=pool(scope,level).slice();p.sort((a,b)=>(boxes[a.id]-boxes[b.id])||(Math.random()-.5));return shuffle(p).sort((a,b)=>boxes[a.id]-boxes[b.id]).slice(0,limit);}
 
 /* level chips */
-let scope='all',level='all';
+let scope='all',level='4';
 function renderLevelbar(el,cur,onPick){el.innerHTML='';LEVELS.forEach(([code,label])=>{const c=DATA.filter(d=>code==='all'||d.lv===code).length;const b=document.createElement('button');b.className='lvchip'+(code===cur?' sel':'');b.innerHTML=label+'<span class="n">'+c+'</span>';b.onclick=()=>onPick(code);el.appendChild(b);});}
 
 /* home */
@@ -1216,11 +1217,11 @@ function answer(btn,chosen,correct){if(qLock)return;qLock=true;$$('#qOpts .opt')
 function finishQuiz(){const rate=Math.round(qRight/qQ.length*100);$('#doneMark').textContent=rate===100?'🏆':rate>=70?'🎯':'📘';$('#doneTitle').textContent='クイズ結果';$('#doneMsg').innerHTML=qQ.length+' 問中 <b>'+qRight+'</b> 問正解（'+rate+'%）<br>間違えた語は仕分けに反映しました。';$('#doneAgain').onclick=()=>{renderHome();startQuiz();};renderHome();show('done');}
 
 /* list */
-let listScope='all',listLevel='all',listHide=true;
+let listScope='all',listLevel='4',listHide=true;
 function renderList(){renderLevelbar($('#listLevelbar'),listLevel,c=>{listLevel=c;renderList();});const p=pool(listScope,listLevel);const rows=$('#rows');rows.innerHTML='';p.forEach(d=>{const r=document.createElement('div');r.className='row';const st=boxes[d.id]>=4?'定着':boxes[d.id]>=1?'学習中':'未';r.innerHTML='<span class="en">'+d.en+'</span><span class="ja">'+d.ja+(d.alt?' <span class="alt">／'+d.alt.ja+'</span>':'')+'</span><span class="lvb">'+LVLABEL[d.lv]+'</span>';rows.appendChild(r);});rows.classList.toggle('hide',listHide);$('#listSub').textContent=p.length+' 項目';$('#listCount').textContent=(listLevel==='all'?'単語帳':LVLABEL[listLevel]);$$('#listSeg button').forEach(x=>x.classList.toggle('sel',x.dataset.scope===listScope));}
 $('#listSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;listScope=b.dataset.scope;renderList();});
 $('#listSwitch').addEventListener('click',()=>{listHide=!listHide;$('#listSwitch').classList.toggle('on',listHide);$('#rows').classList.toggle('hide',listHide);});
-$('#rows').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r||!listHide)return;const ja=r.querySelector('.ja');ja.style.color='var(--paper)';ja.style.background='transparent';setTimeout(()=>{if(listHide){ja.style.color='';ja.style.background='';}},1400);});
+$('#rows').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r||!listHide)return;const ja=r.querySelector('.ja');ja.style.color='var(--ink)';ja.style.background='transparent';setTimeout(()=>{if(listHide){ja.style.color='';ja.style.background='';}},1400);});
 
 $('#verTag').textContent=VERSION;
 renderHome();
