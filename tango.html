@@ -71,6 +71,11 @@
   .fc-stage{flex:1;display:flex;flex-direction:column;justify-content:center;}
   .word-card{background:var(--paper);color:var(--ink);border-radius:22px;padding:30px 24px;box-shadow:var(--shadow);position:relative;overflow:hidden;min-height:300px;display:flex;flex-direction:column;}
   .badges{display:flex;gap:7px;align-self:flex-start;}
+  .say{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:50%;background:var(--desk-2);color:var(--ink);font-size:17px;display:flex;align-items:center;justify-content:center;line-height:1;z-index:2;}
+  .say:active{transform:scale(.9);}
+  .say-sm{flex:none;width:30px;height:30px;border-radius:8px;background:rgba(70,52,30,.07);color:var(--ink);font-size:14px;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .say-sm:active{transform:scale(.9);}
+  .no-tts .say,.no-tts .say-sm{display:none;}
   .tag{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);background:#E8DEC7;padding:4px 9px;border-radius:6px;}
   .tag.lv{background:var(--aka);color:#fff;}
   .card .pos{color:var(--muted);font-size:13px;margin-top:auto;}
@@ -174,6 +179,7 @@
     <div class="fc-stage" id="fcStage">
       <div class="word-card">
         <div class="badges"><span class="tag lv" id="fcLv">2級</span><span class="tag" id="fcTag">単語</span></div>
+        <button class="say" id="fcSay" aria-label="発音を聞く">🔊</button>
         <div class="headword" id="fcWord">—</div>
         <div class="meaning-zone" id="fcZone"><div class="meaning" id="fcMean">—</div><div class="sheet" id="fcSheet"></div></div>
         <div class="pos" id="fcPos"></div>
@@ -1163,7 +1169,7 @@ const LEVELS=[['all','すべて'],['4','4級'],['3','3級'],['p2','準2級'],['2
 const LVLABEL={'4':'4級','3':'3級','p2':'準2級','2':'2級','p1':'準1級','1':'1級'};
 DATA.forEach((d,i)=>d.id='w'+i);
 /* アプリのバージョン。小さな修正でも必ず上げる。index.htmlの ?v= も一緒に上げてスマホのキャッシュを更新する */
-const VERSION='v1.1.1';
+const VERSION='v1.2.0';
 
 /* storage */
 const store=(()=>{let ok=true;try{const k='__t';localStorage.setItem(k,'1');localStorage.removeItem(k);}catch(e){ok=false;}const mem={};return{get(k,def){try{const v=ok?localStorage.getItem(k):mem[k];return v==null?def:JSON.parse(v);}catch(e){return def;}},set(k,v){try{const s=JSON.stringify(v);if(ok)localStorage.setItem(k,s);else mem[k]=s;}catch(e){}}};})();
@@ -1201,6 +1207,12 @@ $('#scopeSeg').addEventListener('click',e=>{const b=e.target.closest('button');i
 
 document.body.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;const dst=g.dataset.go;if(dst==='flash')startFlash();else if(dst==='quiz')startQuiz();else if(dst==='list'){listScope=scope;listLevel=level;renderList();show('list');}else if(dst==='home'){renderHome();show('home');}});
 
+/* 発音（ブラウザの音声合成。外部サイト不要・著作権フリー） */
+const TTS='speechSynthesis' in window;
+if(!TTS)document.body.classList.add('no-tts');
+function speak(text){if(!TTS||!text)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u);}catch(e){}}
+$('#fcSay').addEventListener('click',e=>{e.stopPropagation();if(fcQ[fcI])speak(fcQ[fcI].en);});
+
 /* flashcard */
 let fcQ=[],fcI=0,fcRevealed=false,fcRight=0;
 function startFlash(){fcQ=buildQueue(scope,level,20);fcI=0;fcRight=0;show('flash');if(!fcQ.length){$('#fcStage').innerHTML='<div class="empty">この条件に語がありません。<br>ホームでレベルや種別を変えてください。</div>';return;}renderFC();}
@@ -1218,10 +1230,10 @@ function finishQuiz(){const rate=Math.round(qRight/qQ.length*100);$('#doneMark')
 
 /* list */
 let listScope='all',listLevel='4',listHide=true;
-function renderList(){renderLevelbar($('#listLevelbar'),listLevel,c=>{listLevel=c;renderList();});const p=pool(listScope,listLevel);const rows=$('#rows');rows.innerHTML='';p.forEach(d=>{const r=document.createElement('div');r.className='row';const st=boxes[d.id]>=4?'定着':boxes[d.id]>=1?'学習中':'未';r.innerHTML='<span class="en">'+d.en+'</span><span class="ja">'+d.ja+(d.alt?' <span class="alt">／'+d.alt.ja+'</span>':'')+'</span><span class="lvb">'+LVLABEL[d.lv]+'</span>';rows.appendChild(r);});rows.classList.toggle('hide',listHide);$('#listSub').textContent=p.length+' 項目';$('#listCount').textContent=(listLevel==='all'?'単語帳':LVLABEL[listLevel]);$$('#listSeg button').forEach(x=>x.classList.toggle('sel',x.dataset.scope===listScope));}
+function renderList(){renderLevelbar($('#listLevelbar'),listLevel,c=>{listLevel=c;renderList();});const p=pool(listScope,listLevel);const rows=$('#rows');rows.innerHTML='';p.forEach(d=>{const r=document.createElement('div');r.className='row';const st=boxes[d.id]>=4?'定着':boxes[d.id]>=1?'学習中':'未';r.innerHTML='<span class="en">'+d.en+'</span><span class="ja">'+d.ja+(d.alt?' <span class="alt">／'+d.alt.ja+'</span>':'')+'</span><button class="say-sm" data-say="'+d.en+'" aria-label="発音を聞く">🔊</button><span class="lvb">'+LVLABEL[d.lv]+'</span>';rows.appendChild(r);});rows.classList.toggle('hide',listHide);$('#listSub').textContent=p.length+' 項目';$('#listCount').textContent=(listLevel==='all'?'単語帳':LVLABEL[listLevel]);$$('#listSeg button').forEach(x=>x.classList.toggle('sel',x.dataset.scope===listScope));}
 $('#listSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;listScope=b.dataset.scope;renderList();});
 $('#listSwitch').addEventListener('click',()=>{listHide=!listHide;$('#listSwitch').classList.toggle('on',listHide);$('#rows').classList.toggle('hide',listHide);});
-$('#rows').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r||!listHide)return;const ja=r.querySelector('.ja');ja.style.color='var(--ink)';ja.style.background='transparent';setTimeout(()=>{if(listHide){ja.style.color='';ja.style.background='';}},1400);});
+$('#rows').addEventListener('click',e=>{const sb=e.target.closest('[data-say]');if(sb){e.stopPropagation();speak(sb.dataset.say);return;}const r=e.target.closest('.row');if(!r||!listHide)return;const ja=r.querySelector('.ja');ja.style.color='var(--ink)';ja.style.background='transparent';setTimeout(()=>{if(listHide){ja.style.color='';ja.style.background='';}},1400);});
 
 $('#verTag').textContent=VERSION;
 renderHome();
