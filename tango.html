@@ -24,6 +24,7 @@
   .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.02em;}
   .brand .chip{width:26px;height:20px;border-radius:4px;background:var(--aka);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25);}
   .streak{font-size:14px;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:5px;}
+  .ver{font-size:10px;color:#7d8c84;font-weight:400;margin-left:7px;letter-spacing:.02em;}
   .screen{flex:1;display:none;flex-direction:column;animation:rise .28s ease;}
   .screen.on{display:flex;}
   @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -129,7 +130,7 @@
 <body>
 <div class="app">
   <header>
-    <div class="brand"><span class="chip"></span>暗記シート単語帳</div>
+    <div class="brand"><span class="chip"></span>暗記シート単語帳<span class="ver" id="verTag"></span></div>
     <div class="streak" id="streak">🔥 <span id="streakN">0</span>日</div>
   </header>
 
@@ -1158,6 +1159,8 @@ const DATA=[{t:'word',lv:'4',en:'airport',pos:'名',ja:'空港'},
 const LEVELS=[['all','すべて'],['4','4級'],['3','3級'],['p2','準2級'],['2','2級'],['p1','準1級'],['1','1級']];
 const LVLABEL={'4':'4級','3':'3級','p2':'準2級','2':'2級','p1':'準1級','1':'1級'};
 DATA.forEach((d,i)=>d.id='w'+i);
+/* アプリのバージョン。小さな修正でも必ず上げる。index.htmlの ?v= も一緒に上げてスマホのキャッシュを更新する */
+const VERSION='v1.0.0';
 
 /* storage */
 const store=(()=>{let ok=true;try{const k='__t';localStorage.setItem(k,'1');localStorage.removeItem(k);}catch(e){ok=false;}const mem={};return{get(k,def){try{const v=ok?localStorage.getItem(k):mem[k];return v==null?def:JSON.parse(v);}catch(e){return def;}},set(k,v){try{const s=JSON.stringify(v);if(ok)localStorage.setItem(k,s);else mem[k]=s;}catch(e){}}};})();
@@ -1198,7 +1201,7 @@ document.body.addEventListener('click',e=>{const g=e.target.closest('[data-go]')
 /* flashcard */
 let fcQ=[],fcI=0,fcRevealed=false,fcRight=0;
 function startFlash(){fcQ=buildQueue(scope,level,20);fcI=0;fcRight=0;show('flash');if(!fcQ.length){$('#fcStage').innerHTML='<div class="empty">この条件に語がありません。<br>ホームでレベルや種別を変えてください。</div>';return;}renderFC();}
-function renderFC(){const d=fcQ[fcI];fcRevealed=false;$('#fcLv').textContent=LVLABEL[d.lv];$('#fcTag').textContent=d.t==='word'?'単語':'熟語';const w=$('#fcWord');w.textContent=d.en;w.classList.toggle('idiom',d.t==='idiom');const meanEl=$('#fcMean');if(d.alt){meanEl.innerHTML='<div class="mrow"><span class="posb">'+d.pos+'</span><span>'+d.ja+'</span></div><div class="mrow"><span class="posb">'+d.alt.pos+'</span><span>'+d.alt.ja+'</span></div>';$('#fcPos').textContent='';}else{meanEl.textContent=d.ja;$('#fcPos').textContent=d.pos==='熟'?'':'（'+d.pos+'）';}$('#fcZone').classList.remove('revealed');$('#fcGrade').classList.add('hidden');$('#fcHint').textContent='タップして意味を確認';$('#fcCount').textContent=(fcI+1)+'/'+fcQ.length;$('#fcFill').style.width=(fcI/fcQ.length*100)+'%';}
+function renderFC(){const d=fcQ[fcI];fcRevealed=false;$('#fcLv').textContent=LVLABEL[d.lv];$('#fcTag').textContent=d.t==='word'?'単語':'熟語';const w=$('#fcWord');w.textContent=d.en;w.classList.toggle('idiom',d.t==='idiom');const meanEl=$('#fcMean');if(d.alt){meanEl.innerHTML='<div class="mrow"><span class="posb">'+d.pos+'</span><span>'+d.ja+'</span></div><div class="mrow"><span class="posb">'+d.alt.pos+'</span><span>'+d.alt.ja+'</span></div>';$('#fcPos').textContent='';}else{meanEl.textContent=d.ja;$('#fcPos').textContent=d.pos==='熟'?'':'（'+d.pos+'）';}const zone=$('#fcZone'),sheet=$('#fcSheet');sheet.style.transition='none';zone.classList.remove('revealed');void sheet.offsetWidth;sheet.style.transition='';$('#fcGrade').classList.add('hidden');$('#fcHint').textContent='タップして意味を確認';$('#fcCount').textContent=(fcI+1)+'/'+fcQ.length;$('#fcFill').style.width=(fcI/fcQ.length*100)+'%';}
 $('#fcSheet').addEventListener('click',()=>{fcRevealed=true;$('#fcZone').classList.add('revealed');$('#fcGrade').classList.remove('hidden');$('#fcHint').textContent='思い出せた？';});
 $('#fcGrade').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!fcRevealed)return;const d=fcQ[fcI];if(b.dataset.grade==='got'){boxes[d.id]=Math.min(4,boxes[d.id]+1);fcRight++;}else{boxes[d.id]=Math.max(0,boxes[d.id]-1);}saveBoxes();fcI++;if(fcI>=fcQ.length){bumpStreak();finishFlash();}else renderFC();});
 function finishFlash(){$('#doneMark').textContent=fcRight===fcQ.length?'🎉':'📗';$('#doneTitle').textContent='カード完了';$('#doneMsg').innerHTML=fcQ.length+' 枚中 <b>'+fcRight+'</b> 枚「覚えた」<br>あやふやな語は次回また出てきます。';$('#doneAgain').onclick=()=>{renderHome();startFlash();};renderHome();show('done');}
@@ -1206,7 +1209,7 @@ function finishFlash(){$('#doneMark').textContent=fcRight===fcQ.length?'🎉':'�
 /* quiz */
 let qQ=[],qI=0,qRight=0,qLock=false;
 function startQuiz(){qQ=buildQueue(scope,level,10);qI=0;qRight=0;show('quiz');if(qQ.length<4){$('#qStage').innerHTML='<div class="empty">クイズには最低4語必要です。<br>レベルや種別を「すべて」に広げてください。</div>';return;}renderQ();}
-function renderQ(){qLock=false;const d=qQ[qI];$('#qLv').textContent=LVLABEL[d.lv];$('#qTag').textContent=d.t==='word'?'単語':'熟語';const w=$('#qWord');w.textContent=d.en;w.classList.toggle('idiom',d.t==='idiom');$('#qCount').textContent=(qI+1)+'/'+qQ.length;$('#qFill').style.width=(qI/qQ.length*100)+'%';const same=DATA.filter(x=>x.id!==d.id&&x.t===d.t);const distract=shuffle((same.length>=3?same:DATA.filter(x=>x.id!==d.id))).slice(0,3);const opts=shuffle([d,...distract]);const box=$('#qOpts');box.innerHTML='';opts.forEach(o=>{const btn=document.createElement('button');btn.className='opt';btn.textContent=o.ja;btn.onclick=()=>answer(btn,o,d);box.appendChild(btn);});}
+function renderQ(){qLock=false;const d=qQ[qI];$('#qLv').textContent=LVLABEL[d.lv];$('#qTag').textContent=d.t==='word'?'単語':'熟語';const w=$('#qWord');w.textContent=d.en;w.classList.toggle('idiom',d.t==='idiom');$('#qCount').textContent=(qI+1)+'/'+qQ.length;$('#qFill').style.width=(qI/qQ.length*100)+'%';const tld=s=>/[〜～]/.test(s);const wt=tld(d.ja);let pool=DATA.filter(x=>x.id!==d.id&&x.t===d.t&&tld(x.ja)===wt);if(pool.length<3)pool=DATA.filter(x=>x.id!==d.id&&x.t===d.t);if(pool.length<3)pool=DATA.filter(x=>x.id!==d.id);const distract=shuffle(pool).slice(0,3);const opts=shuffle([d,...distract]);const box=$('#qOpts');box.innerHTML='';opts.forEach(o=>{const btn=document.createElement('button');btn.className='opt';btn.textContent=o.ja;btn.onclick=()=>answer(btn,o,d);box.appendChild(btn);});}
 function answer(btn,chosen,correct){if(qLock)return;qLock=true;$$('#qOpts .opt').forEach(b=>{b.disabled=true;if(b.textContent===correct.ja)b.classList.add('correct');});if(chosen.id===correct.id){qRight++;boxes[correct.id]=Math.min(4,boxes[correct.id]+1);}else{btn.classList.add('wrong');boxes[correct.id]=Math.max(0,boxes[correct.id]-1);}saveBoxes();setTimeout(()=>{qI++;if(qI>=qQ.length){bumpStreak();finishQuiz();}else renderQ();},chosen.id===correct.id?650:1150);}
 function finishQuiz(){const rate=Math.round(qRight/qQ.length*100);$('#doneMark').textContent=rate===100?'🏆':rate>=70?'🎯':'📘';$('#doneTitle').textContent='クイズ結果';$('#doneMsg').innerHTML=qQ.length+' 問中 <b>'+qRight+'</b> 問正解（'+rate+'%）<br>間違えた語は仕分けに反映しました。';$('#doneAgain').onclick=()=>{renderHome();startQuiz();};renderHome();show('done');}
 
@@ -1217,6 +1220,7 @@ $('#listSeg').addEventListener('click',e=>{const b=e.target.closest('button');if
 $('#listSwitch').addEventListener('click',()=>{listHide=!listHide;$('#listSwitch').classList.toggle('on',listHide);$('#rows').classList.toggle('hide',listHide);});
 $('#rows').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r||!listHide)return;const ja=r.querySelector('.ja');ja.style.color='var(--paper)';ja.style.background='transparent';setTimeout(()=>{if(listHide){ja.style.color='';ja.style.background='';}},1400);});
 
+$('#verTag').textContent=VERSION;
 renderHome();
 </script>
 </body>
